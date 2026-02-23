@@ -3,6 +3,7 @@ const { LiteAnalyzer } = require('./lite-analyzer');
 const { SQLiteCache } = require('./sqlite-cache');
 const { RiskSchema, ExecutionGate } = require('./schema');
 const { Logger } = require('./logger');
+const { RateLimiter } = require('./rate-limiter');
 
 const app = express();
 app.use(express.json());
@@ -11,6 +12,7 @@ app.use(express.json());
 const analyzer = new LiteAnalyzer();
 const cache = new SQLiteCache();
 const logger = new Logger();
+const rateLimiter = new RateLimiter();
 let cacheReady = false;
 
 // Initialize cache on startup
@@ -54,9 +56,21 @@ app.get('/health', async (req, res) => {
 // Lite execution_pre_trade_gate
 app.post('/api/v1/gate', async (req, res) => {
   const startTime = Date.now();
+  const requestId = logger.generateRequestId();
   
   try {
-    const { token, actionType, amount = '0', chain = 'ethereum' } = req.body;
+    const { token, actionType, amount = '0', chain = 'ethereum', wallet = 'anonymous' } = req.body;
+    
+    // Rate limit check
+    const rateLimit = await rateLimiter.checkLimit(wallet);
+    if (!rateLimit.allowed) {
+      return res.status(429).json({
+        decision: 'BLOCK',
+        reason: 'Rate limit exceeded',
+        rate_limit: rateLimit,
+        upgrade: rateLimit.upgrade
+      });
+    }
     
     // Validation
     if (!token || !/^0x[a-fA-F0-9]{40}$/i.test(token)) {
@@ -125,6 +139,12 @@ app.post('/api/v1/gate', async (req, res) => {
         mode: 'LITE',
         ...gate,
         recommended_next_call: recommendedNextCall,
+        rate_limit: {
+          tier: rateLimit.tier,
+          used: rateLimit.used,
+          limit: rateLimit.limit,
+          remaining: rateLimit.remaining
+        },
         token,
         actionType,
         rpc_efficiency: {
@@ -133,6 +153,21 @@ app.post('/api/v1/gate', async (req, res) => {
         }
       };
       
+      // Log the request
+      logger.logRequest({
+        requestId,
+        endpoint: '/api/v1/gate',
+        chain,
+        token,
+        actionType,
+        verdict: gate.decision,
+        latencyMs: result.latency_ms,
+        cacheHit: false,
+        riskScore: riskSchema.risk_score,
+        confidence: riskSchema.confidence,
+        rpcCalls: analysis.rpcCalls
+      });
+      
       // Cache for 5 minutes
       if (cacheReady) {
         await cache.set(cacheKey, result, 300);
@@ -140,6 +175,21 @@ app.post('/api/v1/gate', async (req, res) => {
     } else {
       result.latency_ms = Date.now() - startTime;
       result.rpc_efficiency = { calls: 0, cached: true };
+      
+      // Log cached request
+      logger.logRequest({
+        requestId,
+        endpoint: '/api/v1/gate',
+        chain,
+        token,
+        actionType,
+        verdict: result.decision,
+        latencyMs: result.latency_ms,
+        cacheHit: true,
+        riskScore: result.risk_score,
+        confidence: result.confidence,
+        rpcCalls: 0
+      });
     }
     
     res.json(result);
@@ -169,22 +219,93 @@ app.get('/metrics', async (req, res) => {
   });
 });
 
+// Policy Pack endpoints
+const { PolicyPack } = require('./policy-pack');
+const policyPack = new PolicyPack();
+
+// List policies
+app.get('/api/v1/policies', (req, res) => {
+  res.json({
+    policies: policyPack.listPolicies(),
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Policy check
+app.post('/api/v1/policy/check', async (req, res) => {
+  try {
+    const { token, policyId = 'moderate', tokenData = {} } = req.body;
+    
+    if (!token || !/^0x[a-fA-F0-9]{40}$/i.test(token)) {
+      return res.status(400).json({
+        verdict: 'BLOCK',
+        reason: 'Invalid token address'
+      });
+    }
+    
+    const result = policyPack.evaluate(token, policyId, tokenData);
+    
+    // Log the request
+    logger.logRequest({
+      endpoint: '/api/v1/policy/check',
+      token,
+      verdict: result.verdict,
+      latencyMs: 0,
+      cacheHit: false,
+      rpcCalls: 0
+    });
+    
+    res.json(result);
+    
+  } catch (error) {
+    console.error('Policy check error:', error);
+    res.status(500).json({
+      verdict: 'BLOCK',
+      reason: 'System error'
+    });
+  }
+});
+
 // Cleanup expired cache entries every hour
 setInterval(async () => {
   if (cacheReady) {
     await cache.cleanup();
   }
+  // Cleanup rate limiter
+  rateLimiter.cleanup();
 }, 3600000);
+
+// Daily report cron (9 AM UTC)
+const { DailyReporter } = require('./daily-reporter');
+const reporter = new DailyReporter(logger, {
+  // Add your Telegram/Discord credentials here
+  // telegramToken: process.env.TELEGRAM_TOKEN,
+  // telegramChatId: process.env.TELEGRAM_CHAT_ID,
+  // discordWebhook: process.env.DISCORD_WEBHOOK
+});
+
+// Schedule daily report
+setInterval(() => {
+  const now = new Date();
+  if (now.getUTCHours() === 9 && now.getUTCMinutes() === 0) {
+    reporter.generateAndSend();
+  }
+}, 60000); // Check every minute
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🛡️  BLNK LITE running on port ${PORT}`);
   console.log(`📊 Mode: Free tier (1 RPC call per gate check)`);
   console.log(`💾 Cache: SQLite (file-based)`);
+  console.log(`🎯 Rate Limiting: 4 tiers (FREE/BASIC/PRO/ENTERPRISE)`);
+  console.log(`📈 Daily Reports: Auto-scheduled`);
   console.log(`\nEndpoints:`);
-  console.log(`  POST /api/v1/gate    - Pre-trade gate (1 RPC call)`);
-  console.log(`  GET  /health         - Health check`);
-  console.log(`  GET  /stats          - Statistics`);
+  console.log(`  POST /api/v1/gate           - Pre-trade gate (1 RPC call)`);
+  console.log(`  POST /api/v1/policy/check   - Policy compliance check`);
+  console.log(`  GET  /api/v1/policies       - List available policies`);
+  console.log(`  GET  /health                - Health check`);
+  console.log(`  GET  /version               - Version info`);
+  console.log(`  GET  /metrics               - Daily metrics`);
 });
 
 module.exports = app;
