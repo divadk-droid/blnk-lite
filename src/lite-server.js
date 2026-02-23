@@ -146,6 +146,7 @@ app.post('/api/v1/gate', async (req, res) => {
         latency_ms: Date.now() - startTime + analysis.latencyMs,
         mode: 'LITE',
         ...gate,
+        is_whitelisted: analysis.isWhitelisted || false,
         recommended_next_call: recommendedNextCall,
         rate_limit: {
           tier: rateLimit.tier,
