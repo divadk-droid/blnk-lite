@@ -4,6 +4,7 @@ const { SQLiteCache } = require('./sqlite-cache');
 const { RiskSchema, ExecutionGate } = require('./schema');
 const { Logger } = require('./logger');
 const { RateLimiter } = require('./rate-limiter');
+const { PaymentManager } = require('./payment');
 
 const app = express();
 app.use(express.json());
@@ -13,6 +14,7 @@ const analyzer = new LiteAnalyzer();
 const cache = new SQLiteCache();
 const logger = new Logger();
 const rateLimiter = new RateLimiter();
+const paymentManager = new PaymentManager();
 let cacheReady = false;
 
 // Initialize cache on startup
@@ -61,14 +63,20 @@ app.post('/api/v1/gate', async (req, res) => {
   try {
     const { token, actionType, amount = '0', chain = 'ethereum', wallet = 'anonymous' } = req.body;
     
-    // Rate limit check
-    const rateLimit = await rateLimiter.checkLimit(wallet);
+    // API Key validation
+    const apiKey = req.headers['x-api-key'];
+    const keyData = paymentManager.validateKey(apiKey);
+    const effectiveTier = keyData.valid ? keyData.tier : 'FREE';
+    
+    // Rate limit check with tier
+    const rateLimit = await rateLimiter.checkLimit(wallet, effectiveTier);
     if (!rateLimit.allowed) {
       return res.status(429).json({
         decision: 'BLOCK',
         reason: 'Rate limit exceeded',
         rate_limit: rateLimit,
-        upgrade: rateLimit.upgrade
+        upgrade: rateLimit.upgrade,
+        get_api_key: 'POST /api/v1/auth/register'
       });
     }
     
@@ -266,7 +274,49 @@ app.post('/api/v1/policy/check', async (req, res) => {
   }
 });
 
-// Cleanup expired cache entries every hour
+// API Key management endpoints
+app.post('/api/v1/auth/register', (req, res) => {
+  const { wallet, tier = 'FREE' } = req.body;
+  
+  if (!wallet || !/^0x[a-fA-F0-9]{40}$/i.test(wallet)) {
+    return res.status(400).json({ error: 'Valid wallet address required' });
+  }
+  
+  const apiKey = paymentManager.generateApiKey(wallet, tier);
+  
+  res.json({
+    api_key: apiKey,
+    tier,
+    wallet,
+    message: 'Keep this key safe. It cannot be recovered.',
+    upgrade_url: tier === 'FREE' ? 'https://stripe.com/blnk-upgrade' : null
+  });
+});
+
+app.get('/api/v1/auth/me', (req, res) => {
+  const apiKey = req.headers['x-api-key'];
+  const keyData = paymentManager.validateKey(apiKey);
+  
+  if (!keyData.valid) {
+    return res.status(401).json({ error: 'Invalid API key' });
+  }
+  
+  const subscription = paymentManager.getSubscription(apiKey);
+  
+  res.json({
+    tier: keyData.tier,
+    wallet: keyData.wallet,
+    subscription: subscription || null,
+    rate_limits: rateLimiter.tiers[keyData.tier]
+  });
+});
+
+// Stripe webhook (placeholder)
+app.post('/webhooks/stripe', express.raw({ type: 'application/json' }), async (req, res) => {
+  const event = JSON.parse(req.body);
+  await paymentManager.handleStripeWebhook(event);
+  res.json({ received: true });
+});
 setInterval(async () => {
   if (cacheReady) {
     await cache.cleanup();
