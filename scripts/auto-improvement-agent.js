@@ -318,6 +318,20 @@ class AutoImprovementAgent {
     try {
       let content = fs.readFileSync(CONFIG.planPath, 'utf-8');
       
+      // Remove duplicates from issues
+      const uniqueIssues = [];
+      const seen = new Set();
+      
+      for (const issue of this.issues) {
+        const key = `${issue.type}-${issue.category}-${issue.message}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          uniqueIssues.push(issue);
+        }
+      }
+      
+      this.issues = uniqueIssues;
+      
       // Add new issues to "검토 중 (Under Review)" section
       const newIssues = this.issues.filter(i => i.type !== 'INFO');
       
