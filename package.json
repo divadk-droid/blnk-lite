@@ -1,0 +1,21 @@
+{
+  "name": "blnk-lite",
+  "version": "1.0.0",
+  "description": "BLNK Lite - Free tier risk infrastructure",
+  "main": "src/lite-server.js",
+  "scripts": {
+    "start": "node src/lite-server.js",
+    "dev": "nodemon src/lite-server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "ethers": "^6.10.0",
+    "sqlite3": "^5.1.6"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
