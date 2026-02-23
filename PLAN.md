@@ -124,3 +124,13 @@
 - [ ] **WARNING** [logic] Gate decision mismatch for 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
 - [ ] **WARNING** [logic] Gate decision mismatch for 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
 - [ ] **WARNING** [cache] Cache may not be working optimally (자동 수정 가능: Check cache TTL and storage)
+
+
+## Research Ideas
+
+### 2026-02-23
+- [ ] MEV protection (from Trading Assistant Pro)
+- [ ] slippage prediction (from Trading Assistant Pro)
+- [ ] risk scoring (from Portfolio Guardian)
+- [ ] alert system (from Portfolio Guardian)
+- [ ] vulnerability detection (from Smart Contract Auditor)
