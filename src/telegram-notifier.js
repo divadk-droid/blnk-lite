@@ -1,6 +1,6 @@
 /**
- * BLNK Telegram Notifier
- * Sends alerts and reports to Telegram
+ * BLNK Telegram Notifier (Korean)
+ * 텔레그램 알림 발송 (한국어)
  */
 
 const https = require('https');
@@ -21,7 +21,6 @@ class TelegramNotifier {
     options = options || {};
     const url = this.baseUrl + '/sendMessage';
     
-    // Convert actual newlines to \n for JSON
     const jsonText = text.replace(/\n/g, '\\n');
     
     const data = JSON.stringify({
@@ -59,19 +58,19 @@ class TelegramNotifier {
 
   async sendDailyReport(metrics) {
     const lines = [
-      '📊 <b>BLNK Daily Report</b>',
+      '📊 <b>BLNK 일일 리포트</b>',
       '',
-      '📈 <b>Traffic</b>',
-      '• Total Requests: ' + (metrics.totalRequests || 0),
-      '• Avg Latency: ' + (metrics.avgLatency || 0) + 'ms',
-      '• Cache Hit Rate: ' + ((metrics.cacheHitRate || 0).toFixed(1)) + '%',
+      '📈 <b>트래픽</b>',
+      '• 총 요청: ' + (metrics.totalRequests || 0) + '회',
+      '• 평균 지연: ' + (metrics.avgLatency || 0) + 'ms',
+      '• 캐시 히트율: ' + ((metrics.cacheHitRate || 0).toFixed(1)) + '%',
       '',
-      '🎯 <b>Verdicts</b>',
-      '• ✅ PASS: ' + (metrics.pass || 0),
-      '• ⚠️ WARN: ' + (metrics.warn || 0),
-      '• 🚫 BLOCK: ' + (metrics.block || 0),
+      '🎯 <b>판정 결과</b>',
+      '• ✅ 통과: ' + (metrics.pass || 0) + '회',
+      '• ⚠️ 경고: ' + (metrics.warn || 0) + '회',
+      '• 🚫 차단: ' + (metrics.block || 0) + '회',
       '',
-      '🕐 ' + new Date().toLocaleString()
+      '🕐 ' + new Date().toLocaleString('ko-KR')
     ];
     
     return this.sendMessage(lines.join('\n'));
@@ -84,9 +83,17 @@ class TelegramNotifier {
       critical: '🚨'
     };
     
+    const labels = {
+      info: '정보',
+      warning: '경고',
+      critical: '심각'
+    };
+    
     const icon = icons[level] || '📢';
+    const label = labels[level] || '알림';
+    
     const lines = [
-      icon + ' <b>[' + level.toUpperCase() + ']</b>',
+      icon + ' <b>[' + label + ']</b>',
       '',
       message
     ];
@@ -96,12 +103,12 @@ class TelegramNotifier {
 
   async sendImplementationComplete(task) {
     const lines = [
-      '✅ <b>Auto-Implementation Complete</b>',
+      '✅ <b>자동 구현 완료</b>',
       '',
-      'Task: ' + task,
-      'Time: ' + new Date().toLocaleString(),
+      '작업: ' + task,
+      '완료 시간: ' + new Date().toLocaleString('ko-KR'),
       '',
-      'Next: Testing and validation'
+      '다음 단계: 테스트 및 검증'
     ];
     
     return this.sendMessage(lines.join('\n'));
@@ -109,9 +116,9 @@ class TelegramNotifier {
 
   async sendResearchSummary(ideas) {
     const lines = [
-      '🔬 <b>Research Summary</b>',
+      '🔬 <b>리서치 결과</b>',
       '',
-      'Found ' + ideas.length + ' applicable ideas:'
+      ideas.length + '개의 적용 가능한 아이디어를 발견했습니다:'
     ];
     
     for (let i = 0; i < ideas.length; i++) {
@@ -119,16 +126,43 @@ class TelegramNotifier {
     }
     
     lines.push('');
-    lines.push('Added to PLAN.md');
+    lines.push('PLAN.md에 추가되었습니다.');
+    
+    return this.sendMessage(lines.join('\n'));
+  }
+
+  async sendTestReport(results) {
+    const lines = [
+      '🧪 <b>테스트 결과</b>',
+      '',
+      '✅ 성공: ' + results.passed + '개',
+      '❌ 실패: ' + results.failed + '개',
+      '',
+      '평균 응답 시간: ' + results.avgLatency + 'ms',
+      '에러율: ' + (results.errorRate * 100).toFixed(2) + '%'
+    ];
+    
+    if (results.issues && results.issues.length > 0) {
+      lines.push('');
+      lines.push('⚠️ 발견된 이슈:');
+      for (const issue of results.issues.slice(0, 5)) {
+        lines.push('• ' + issue);
+      }
+    }
+    
+    return this.sendMessage(lines.join('\n'));
+  }
+
+  async sendAgentStarted(agentName) {
+    const lines = [
+      '🤖 <b>' + agentName + '</b>',
+      '',
+      '에이전트가 시작되었습니다.',
+      '시간: ' + new Date().toLocaleString('ko-KR')
+    ];
     
     return this.sendMessage(lines.join('\n'));
   }
 }
 
 module.exports = { TelegramNotifier };
-
-// Test if called directly
-if (require.main === module) {
-  const notifier = new TelegramNotifier();
-  notifier.sendAlert('info', 'BLNK Telegram notifier is ready!');
-}
