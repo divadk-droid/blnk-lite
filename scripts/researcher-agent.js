@@ -60,6 +60,31 @@ class ResearcherAgent {
         name: 'Smart Contract Auditor',
         features: ['vulnerability detection', 'exploit prediction'],
         uniqueValue: 'Pre-deployment scanning'
+      },
+      {
+        name: 'aGDP.io Bounties - Custom Risk Scoring',
+        features: ['custom risk scoring', 'project-specific weights'],
+        uniqueValue: 'User-defined risk models'
+      },
+      {
+        name: 'aGDP.io Bounties - Real-time WebSocket Alerts',
+        features: ['websocket alerts', 'real-time monitoring'],
+        uniqueValue: 'Instant notifications'
+      },
+      {
+        name: 'aGDP.io Bounties - Webhook Integration',
+        features: ['webhook integration', 'discord/slack/telegram'],
+        uniqueValue: 'Multi-platform notifications'
+      },
+      {
+        name: 'aGDP.io Bounties - Multi-language Support',
+        features: ['i18n', 'korean chinese japanese'],
+        uniqueValue: 'Localized risk descriptions'
+      },
+      {
+        name: 'aGDP.io Bounties - PDF/Excel Reports',
+        features: ['pdf generation', 'excel export', 'automated reports'],
+        uniqueValue: 'Professional documentation'
       }
     ];
   }
@@ -72,7 +97,18 @@ class ResearcherAgent {
       'slippage prediction': { score: 0.8, impl: 'Add slippage parameter' },
       'risk scoring': { score: 0.95, impl: 'Enhance scoring dimensions' },
       'alert system': { score: 0.85, impl: 'Enhance alert-system.js' },
-      'vulnerability detection': { score: 0.95, impl: 'Expand pattern database' }
+      'vulnerability detection': { score: 0.95, impl: 'Expand pattern database' },
+      'custom risk scoring': { score: 0.9, impl: 'Implement custom risk scoring engine' },
+      'project-specific weights': { score: 0.85, impl: 'Add configurable risk weights' },
+      'websocket alerts': { score: 0.8, impl: 'Add WebSocket real-time alerts' },
+      'real-time monitoring': { score: 0.75, impl: 'Implement real-time monitoring system' },
+      'webhook integration': { score: 0.85, impl: 'Add webhook support for Discord/Slack/Telegram' },
+      'discord/slack/telegram': { score: 0.8, impl: 'Integrate with popular notification platforms' },
+      'i18n': { score: 0.7, impl: 'Add internationalization support' },
+      'korean chinese japanese': { score: 0.65, impl: 'Add Asian language support' },
+      'pdf generation': { score: 0.75, impl: 'Add PDF report generation' },
+      'excel export': { score: 0.7, impl: 'Add Excel export functionality' },
+      'automated reports': { score: 0.8, impl: 'Implement automated report generation and delivery' }
     };
     
     for (const feature of project.features) {
