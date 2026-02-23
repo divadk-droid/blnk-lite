@@ -323,7 +323,7 @@ class AutoImprovementAgent {
       const seen = new Set();
       
       for (const issue of this.issues) {
-        const key = `${issue.type}-${issue.category}-${issue.message}`;
+        const key = issue.type + '-' + issue.category + '-' + issue.message;
         if (!seen.has(key)) {
           seen.add(key);
           uniqueIssues.push(issue);
@@ -332,26 +332,33 @@ class AutoImprovementAgent {
       
       this.issues = uniqueIssues;
       
-      // Add new issues to "검토 중 (Under Review)" section
-      const newIssues = this.issues.filter(i => i.type !== 'INFO');
+      // Filter out issues already in PLAN.md
+      const existingContent = fs.readFileSync(CONFIG.planPath, 'utf-8');
+      const newIssues = this.issues.filter(i => {
+        if (i.type === 'INFO') return false;
+        const issueKey = i.message.substring(0, 50); // First 50 chars as key
+        return !existingContent.includes(issueKey);
+      });
       
       if (newIssues.length > 0) {
         const issueSection = newIssues.map(issue => {
-          const fixNote = issue.autoFix ? ` (자동 수정 가능: ${issue.suggestedFix})` : '';
-          return `- [ ] **${issue.type}** [${issue.category}] ${issue.message}${fixNote}`;
+          const fixNote = issue.autoFix ? ' (자동 수정 가능: ' + issue.suggestedFix + ')' : '';
+          return '- [ ] **' + issue.type + '** [' + issue.category + '] ' + issue.message + fixNote;
         }).join('\n');
         
         // Check if section exists
         if (!content.includes('## 자동 감지 (Auto-Detected)')) {
-          content += `\n\n## 자동 감지 (Auto-Detected)\n\n`;
+          content += '\n\n## 자동 감지 (Auto-Detected)\n\n';
         }
         
         // Add timestamp
         const timestamp = new Date().toISOString().split('T')[0];
-        content += `\n### ${timestamp}\n${issueSection}\n`;
+        content += '\n### ' + timestamp + '\n' + issueSection + '\n';
         
         fs.writeFileSync(CONFIG.planPath, content);
-        console.log(`[${new Date().toISOString()}] 📝 Updated PLAN.md with ${newIssues.length} issues`);
+        console.log('[' + new Date().toISOString() + '] Updated PLAN.md with ' + newIssues.length + ' new issues');
+      } else {
+        console.log('[' + new Date().toISOString() + '] No new issues to add (all already in PLAN.md)');
       }
     } catch (error) {
       console.error('Failed to update PLAN.md:', error.message);
