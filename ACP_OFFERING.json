@@ -1,0 +1,168 @@
+{
+  "offering": {
+    "id": "blnk-risk-gate",
+    "name": "BLNK Risk Gate",
+    "version": "1.0.0",
+    "description": "Pre-trade risk infrastructure for AI agents. One RPC call execution gate with policy-based compliance.",
+    "category": "risk_infrastructure",
+    "base_url": "https://blnk-lite-production.up.railway.app",
+    "mode": "LITE",
+    
+    "endpoints": [
+      {
+        "id": "execution_pre_trade_gate",
+        "name": "Pre-Trade Risk Gate",
+        "path": "/api/v1/gate",
+        "method": "POST",
+        "price": "$1 USD per 100 calls",
+        "description": "Single RPC call risk assessment before trade execution",
+        "input": {
+          "token": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "actionType": "swap",
+          "amount": "1.0",
+          "chain": "ethereum",
+          "wallet": "0x..."
+        },
+        "output": {
+          "schema_version": "1.0.0",
+          "gate_id": "gate_1234567890_abc123",
+          "timestamp": "2026-02-23T09:20:39.212Z",
+          "latency_ms": 2,
+          "mode": "LITE",
+          "decision": "PASS",
+          "risk_score": 10,
+          "risk_level": "SAFE",
+          "confidence": 0.95,
+          "execution_allowed": true,
+          "requires_confirmation": false,
+          "recommended_next_call": {
+            "skill": "validation_token_safety_scan",
+            "reason": "WARN decision - deep scan recommended",
+            "price": "$5 USD"
+          },
+          "rate_limit": {
+            "tier": "FREE",
+            "used": 1,
+            "limit": 100,
+            "remaining": 99
+          },
+          "rpc_efficiency": {
+            "calls": 0,
+            "cached": true
+          }
+        },
+        "errors": {
+          "400": "Invalid token address",
+          "429": "Rate limit exceeded - upgrade tier",
+          "500": "System error - safe fallback to BLOCK"
+        }
+      },
+      {
+        "id": "policy_pack",
+        "name": "Policy Compliance Check",
+        "path": "/api/v1/policy/check",
+        "method": "POST",
+        "price": "$15 USD per check",
+        "description": "Institutional policy-based PASS/BLOCK decisions",
+        "input": {
+          "token": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "policyId": "conservative",
+          "tokenData": {
+            "isUpgradeable": false,
+            "isMintable": false,
+            "hasBlacklist": false,
+            "taxPercent": 0,
+            "liquidityUSD": 1000000
+          }
+        },
+        "output": {
+          "policy_id": "conservative",
+          "policy_name": "Conservative",
+          "token": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "verdict": "PASS",
+          "violations": [],
+          "violation_count": 0,
+          "rules_applied": 7,
+          "timestamp": "2026-02-23T09:20:39.212Z"
+        },
+        "policies": ["conservative", "moderate", "aggressive", "defi_yield"]
+      },
+      {
+        "id": "list_policies",
+        "name": "List Available Policies",
+        "path": "/api/v1/policies",
+        "method": "GET",
+        "price": "FREE",
+        "description": "Get all available policy templates"
+      },
+      {
+        "id": "health_check",
+        "name": "Health Check",
+        "path": "/health",
+        "method": "GET",
+        "price": "FREE",
+        "description": "Service health and uptime status"
+      },
+      {
+        "id": "version_info",
+        "name": "Version Info",
+        "path": "/version",
+        "method": "GET",
+        "price": "FREE",
+        "description": "API version and schema information"
+      },
+      {
+        "id": "metrics",
+        "name": "Daily Metrics",
+        "path": "/metrics",
+        "method": "GET",
+        "price": "FREE (authenticated)",
+        "description": "Daily usage report with revenue estimate"
+      }
+    ],
+    
+    "pricing_tiers": {
+      "FREE": {
+        "daily_calls": 100,
+        "price": "$0",
+        "blnk_required": 0,
+        "features": ["Basic gate", "SQLite cache", "Public RPC"]
+      },
+      "BASIC": {
+        "daily_calls": 500,
+        "price": "$19/month",
+        "blnk_required": 100,
+        "features": ["Priority queue", "5min cache", "Email support"]
+      },
+      "PRO": {
+        "daily_calls": 2000,
+        "price": "$99/month",
+        "blnk_required": 500,
+        "features": ["Fast lane", "Policy pack", "Webhook alerts", "Discord support"]
+      },
+      "ENTERPRISE": {
+        "daily_calls": 10000,
+        "price": "$499/month",
+        "blnk_required": 2500,
+        "features": ["Dedicated RPC", "Custom policies", "SLA guarantee", "Priority support"]
+      }
+    },
+    
+    "token_utility": {
+      "description": "$BLNK is not payment - it's performance unlock",
+      "mechanism": "Hold $BLNK to unlock higher rate limits and priority queue",
+      "payment": "USDC/Card for subscriptions",
+      "lockup": "On-chain proof of holding (optional tier)"
+    },
+    
+    "quickstart": {
+      "curl": "curl -X POST https://blnk-lite-production.up.railway.app/api/v1/gate \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"token\":\"0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2\",\"actionType\":\"swap\"}'",
+      "javascript": "const response = await fetch('https://blnk-lite-production.up.railway.app/api/v1/gate', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({\n    token: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',\n    actionType: 'swap'\n  })\n});\nconst result = await response.json();\nconsole.log(result.decision); // PASS/WARN/BLOCK",
+      "python": "import requests\n\nresponse = requests.post(\n    'https://blnk-lite-production.up.railway.app/api/v1/gate',\n    json={\n        'token': '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',\n        'actionType': 'swap'\n    }\n)\nresult = response.json()\nprint(result['decision'])  # PASS/WARN/BLOCK"
+    },
+    
+    "disclaimer": "BLNK Risk Gate provides technical risk assessment, not investment advice. Always DYOR.",
+    "support": "https://discord.gg/blnk",
+    "documentation": "https://docs.blnk.io"
+  }
+}
