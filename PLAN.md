@@ -115,3 +115,12 @@
 
 **마지막 업데이트:** 2026-02-23  
 **다음 검토일:** 2026-03-01
+
+
+## 자동 감지 (Auto-Detected)
+
+
+### 2026-02-23
+- [ ] **WARNING** [logic] Gate decision mismatch for 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
+- [ ] **WARNING** [logic] Gate decision mismatch for 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
+- [ ] **WARNING** [cache] Cache may not be working optimally (자동 수정 가능: Check cache TTL and storage)
