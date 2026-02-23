@@ -20,8 +20,8 @@
 **목표일:** 2026-02-24
 
 ### 2. Cache 최적화
-- [ ] Cache TTL 동적 조정 `autoImplement`
-- [ ] Cache hit/miss 메트릭스 수집
+- [x] Cache TTL 동적 조정 `autoImplement`
+- [x] Cache hit/miss 메트릭스 수집
 - [ ] Redis 업그레이드 준비
 
 **문제:** 캐시가 예상보다 효율적이지 않음  
