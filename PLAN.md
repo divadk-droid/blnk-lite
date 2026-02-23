@@ -364,3 +364,15 @@
 - [x] **WARNING** [logic] Gate decision mismatch for 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
 - [x] **WARNING** [logic] Gate decision mismatch for 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
 - [x] **WARNING** [cache] Cache may not be working optimally (자동 수정 가능: Check cache TTL and storage)
+
+### 2026-02-23
+- [ ] custom risk scoring (from aGDP.io Bounties - Custom Risk Scoring)
+- [ ] project-specific weights (from aGDP.io Bounties - Custom Risk Scoring)
+- [x] websocket alerts (from aGDP.io Bounties - Real-time WebSocket Alerts)
+- [x] real-time monitoring (from aGDP.io Bounties - Real-time WebSocket Alerts)
+- [x] webhook integration (from aGDP.io Bounties - Webhook Integration)
+- [x] discord/slack/telegram (from aGDP.io Bounties - Webhook Integration)
+- [ ] korean chinese japanese (from aGDP.io Bounties - Multi-language Support)
+- [ ] pdf generation (from aGDP.io Bounties - PDF/Excel Reports)
+- [ ] excel export (from aGDP.io Bounties - PDF/Excel Reports)
+- [ ] automated reports (from aGDP.io Bounties - PDF/Excel Reports)
