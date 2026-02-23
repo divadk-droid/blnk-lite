@@ -18,7 +18,7 @@
 ### 2. 결제 인프라 강화
 - [x] Stripe 구독 연동
 - [x] API 키 자동 발급 시스템
-- [ ] 웹훅 처리 (invoice.paid, payment_failed)
+- [ ] 웹훅 처리 (invoice.paid, payment_failed) `autoImplement`
 - [ ] 셀프서비스 업그레이드/다운그레이드
 
 **우선순위:** 높음  
@@ -28,8 +28,8 @@
 ### 3. 프로 메트릭스
 - [x] Prometheus 메트릭스 노출
 - [x] Grafana 대시보드
-- [ ] P95/P99 지연 시간 추적
-- [ ] 에러율 알림
+- [ ] P95/P99 지연 시간 추적 `autoImplement`
+- [ ] 에러율 알림 `autoImplement`
 
 **우선순위:** 중간  
 **담당:** DevOps  
@@ -38,8 +38,8 @@
 ### 4. 멀티체인 지원
 - [x] Base 네트워크 추가
 - [x] Arbitrum 네트워크 추가
-- [ ] 체인별 캐시 분리
-- [ ] 체인 선택 파라미터 강화
+- [ ] 체인별 캐시 분리 `autoImplement`
+- [ ] 체인 선택 파라미터 강화 `autoImplement`
 
 **우선순위:** 중간  
 **담당:** 백엔드  

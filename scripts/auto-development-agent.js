@@ -80,15 +80,20 @@ class AutoDevelopmentAgent {
         continue;
       }
       
-      // Find pending items (unchecked boxes)
+      // Find pending items (unchecked boxes) with autoImplement tag
       const match = line.match(/^- \[ \] (.+)$/);
       if (match) {
-        pending.push({
-          task: match[1].trim(),
-          section: currentSection,
-          priority: currentPriority,
-          line: line
-        });
+        const taskText = match[1].trim();
+        // Check if autoImplement tag exists
+        if (taskText.includes('`autoImplement`')) {
+          pending.push({
+            task: taskText.replace('`autoImplement`', '').trim(),
+            section: currentSection,
+            priority: currentPriority,
+            line: line,
+            autoImplement: true
+          });
+        }
       }
     }
     
