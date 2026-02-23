@@ -109,3 +109,11 @@ class PaymentManager {
 }
 
 module.exports = { PaymentManager };
+
+  // Auto-generate API key with email verification
+  async generateKeyWithVerification(email, wallet) {
+    // TODO: Send verification email
+    // TODO: Create pending key
+    // TODO: Activate after verification
+    return this.generateApiKey(wallet, 'FREE');
+  }

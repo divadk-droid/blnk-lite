@@ -1,0 +1,49 @@
+{
+  "dashboard": {
+    "title": "BLNK Risk Gate",
+    "tags": [
+      "blnk",
+      "risk",
+      "api"
+    ],
+    "timezone": "UTC",
+    "panels": [
+      {
+        "title": "Request Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(blnk_http_requests_total[5m])"
+          }
+        ]
+      },
+      {
+        "title": "Gate Decisions",
+        "type": "pie",
+        "targets": [
+          {
+            "expr": "blnk_gate_decisions_total"
+          }
+        ]
+      },
+      {
+        "title": "Cache Hit Ratio",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "blnk_cache_hit_ratio"
+          }
+        ]
+      },
+      {
+        "title": "P95 Latency",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, blnk_http_request_duration)"
+          }
+        ]
+      }
+    ]
+  }
+}

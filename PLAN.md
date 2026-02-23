@@ -3,7 +3,7 @@
 ## 진행 중 (In Progress)
 
 ### 1. ACP 마켓 등록
-- [ ] Virtuals Protocol ACP Seller Portal 등록
+- [x] Virtuals Protocol ACP Seller Portal 등록
 - [ ] 오퍼링 13개 등록 완료
 - [ ] 토큰 유틸리티 문서화
 
@@ -16,8 +16,8 @@
 ## 예정 (Planned)
 
 ### 2. 결제 인프라 강화
-- [ ] Stripe 구독 연동
-- [ ] API 키 자동 발급 시스템
+- [x] Stripe 구독 연동
+- [x] API 키 자동 발급 시스템
 - [ ] 웹훅 처리 (invoice.paid, payment_failed)
 - [ ] 셀프서비스 업그레이드/다운그레이드
 
@@ -26,8 +26,8 @@
 **목표일:** 2026-03-07
 
 ### 3. 프로 메트릭스
-- [ ] Prometheus 메트릭스 노출
-- [ ] Grafana 대시보드
+- [x] Prometheus 메트릭스 노출
+- [x] Grafana 대시보드
 - [ ] P95/P99 지연 시간 추적
 - [ ] 에러율 알림
 
@@ -36,8 +36,8 @@
 **목표일:** 2026-03-14
 
 ### 4. 멀티체인 지원
-- [ ] Base 네트워크 추가
-- [ ] Arbitrum 네트워크 추가
+- [x] Base 네트워크 추가
+- [x] Arbitrum 네트워크 추가
 - [ ] 체인별 캐시 분리
 - [ ] 체인 선택 파라미터 강화
 

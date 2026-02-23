@@ -34,7 +34,19 @@ const SAFE_CONTRACTS = new Set([
 ]);
 
 class LiteAnalyzer {
-  constructor(rpcUrl = 'https://eth.llamarpc.com') {
+  constructor(rpcUrl, network = 'ethereum')
+    this.network = network;
+    this.providers = {
+      ethereum: this.provider,
+  // arbitrum network support
+  arbitrumProvider: new ethers.JsonRpcProvider('https://arb1.arbitrum.io/rpc'),
+    };, network = 'ethereum')
+    this.network = network;
+    this.providers = {
+      ethereum: this.provider,
+  // base network support
+  baseProvider: new ethers.JsonRpcProvider('https://base.llamarpc.com'),
+    }; = 'https://eth.llamarpc.com') {
     this.provider = new ethers.JsonRpcProvider(rpcUrl);
     this.requestCount = 0;
   }
