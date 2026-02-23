@@ -18,7 +18,7 @@
 ### 2. 결제 인프라 강화
 - [x] Stripe 구독 연동
 - [x] API 키 자동 발급 시스템
-- [ ] 웹훅 처리 (invoice.paid, payment_failed) `autoImplement`
+- [x] 웹훅 처리 (invoice.paid, payment_failed) `autoImplement`
 - [ ] 셀프서비스 업그레이드/다운그레이드
 
 **우선순위:** 높음  
@@ -28,7 +28,7 @@
 ### 3. 프로 메트릭스
 - [x] Prometheus 메트릭스 노출
 - [x] Grafana 대시보드
-- [ ] P95/P99 지연 시간 추적 `autoImplement`
+- [x] P95/P99 지연 시간 추적 `autoImplement`
 - [ ] 에러율 알림 `autoImplement`
 
 **우선순위:** 중간  
@@ -46,8 +46,8 @@
 **목표일:** 2026-03-21
 
 ### 5. 고급 분석 (Pro 티어)
-- [ ] 스토리지 슬롯 읽기 (owner, minter)
-- [ ] 이벤트 로그 분석 (Transfer, Mint)
+- [x] 스토리지 슬롯 읽기 (owner, minter)
+- [x] 이벤트 로그 분석 (Transfer, Mint)
 - [ ] 유동성 풀 분석
 - [ ] 홀더 분포 체크
 
@@ -60,7 +60,7 @@
 ## 검토 중 (Under Review)
 
 ### 6. 온체인 $BLNK 검증
-- [ ] ERC20 잔고 조회 컨트랙트
+- [x] ERC20 잔고 조회 컨트랙트
 - [ ] Merkle Proof 검증
 - [ ] 스테이킹 복너스 계산
 
@@ -69,8 +69,8 @@
 
 ### 7. 실시간 모니터링
 - [ ] WebSocket 알림
-- [ ] Telegram 봇 명령어
-- [ ] Discord 봇 통합
+- [x] Telegram 봇 명령어
+- [x] Discord 봇 통합
 
 **우선순위:** 낮음  
 **블로커:** 사용자 요청 대기
@@ -95,7 +95,7 @@
 
 ## 아이디어 백로그
 
-- [ ] MEV 보호 분석
+- [x] MEV 보호 분석
 - [ ] 프론트러닝 탐지
 - [ ] 거래 슬리피지 예측
 - [ ] 가격 예측 (ML)
@@ -121,19 +121,19 @@
 
 
 ### 2026-02-23
-- [ ] **WARNING** [logic] Gate decision mismatch for 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
-- [ ] **WARNING** [logic] Gate decision mismatch for 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
-- [ ] **WARNING** [cache] Cache may not be working optimally (자동 수정 가능: Check cache TTL and storage)
+- [x] **WARNING** [logic] Gate decision mismatch for 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
+- [x] **WARNING** [logic] Gate decision mismatch for 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
+- [x] **WARNING** [cache] Cache may not be working optimally (자동 수정 가능: Check cache TTL and storage)
 
 
 ## Research Ideas
 
 ### 2026-02-23
-- [ ] MEV protection (from Trading Assistant Pro)
-- [ ] slippage prediction (from Trading Assistant Pro)
+- [x] MEV protection (from Trading Assistant Pro)
+- [x] slippage prediction (from Trading Assistant Pro)
 - [ ] risk scoring (from Portfolio Guardian)
-- [ ] alert system (from Portfolio Guardian)
-- [ ] vulnerability detection (from Smart Contract Auditor)
+- [x] alert system (from Portfolio Guardian)
+- [x] vulnerability detection (from Smart Contract Auditor)
 
 
 ## 자동 생성 스킬 (Auto-Generated Skills)
@@ -159,6 +159,6 @@
   - Frequency: 4x, Saves: 15 seconds
 
 ### 2026-02-23
-- [ ] **WARNING** [logic] Gate decision mismatch for 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
-- [ ] **WARNING** [logic] Gate decision mismatch for 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
-- [ ] **WARNING** [cache] Cache may not be working optimally (자동 수정 가능: Check cache TTL and storage)
+- [x] **WARNING** [logic] Gate decision mismatch for 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
+- [x] **WARNING** [logic] Gate decision mismatch for 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
+- [x] **WARNING** [cache] Cache may not be working optimally (자동 수정 가능: Check cache TTL and storage)
