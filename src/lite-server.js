@@ -176,9 +176,11 @@ app.post('/api/v1/gate', async (req, res) => {
         rpcCalls: analysis.rpcCalls
       });
       
-      // Cache for 5 minutes
+      // Cache for 15 minutes (gate) or 3 hours (scan)
+      const ttl = cacheKey.includes('gate') ? 900 : 10800;
+      
       if (cacheReady) {
-        await cache.set(cacheKey, result, 300);
+        await cache.set(cacheKey, result, ttl);
       }
     } else {
       result.latency_ms = Date.now() - startTime;

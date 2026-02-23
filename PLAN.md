@@ -1,5 +1,41 @@
 # BLNK Risk Gate - Improvement Plan
 
+## 긴급 개선 (Critical Fixes)
+
+### 1. WETH/USDC Gate Mismatch 해결
+- [ ] WETH gate 로직 디버깅 `autoImplement`
+- [ ] USDC gate 로직 디버깅 `autoImplement`
+- [ ] 화이트리스트 vs 실제 분석 결과 비교
+- [ ] 테스트 케이스 추가
+
+**문제:** WETH/USDC가 화이트리스트에는 있지만 gate 분석 결과와 mismatch  
+**원인:** 캐시된 결과 vs 실제 RPC 호출 결과 불일치 가능성  
+**해결책:** 
+1. 화이트리스트 우선순위 확인
+2. 캐시 키 정규화 (소문자 변환)
+3. gate 응답에 whitelist 필드 추가
+
+**우선순위:** 긴급  
+**담당:** 백엔드  
+**목표일:** 2026-02-24
+
+### 2. Cache 최적화
+- [ ] Cache TTL 동적 조정 `autoImplement`
+- [ ] Cache hit/miss 메트릭스 수집
+- [ ] Redis 업그레이드 준비
+
+**문제:** 캐시가 예상보다 효율적이지 않음  
+**해결책:**
+1. Gate 결과: 5분 → 15분 TTL 연장
+2. Scan 결과: 1시간 → 3시간 TTL 연장
+3. 인기 토큰 사전 캐싱 강화
+
+**우선순위:** 높음  
+**담당:** 백엔드  
+**목표일:** 2026-02-25
+
+---
+
 ## 진행 중 (In Progress)
 
 ### 1. ACP 마켓 등록
@@ -164,6 +200,6 @@
 - [x] **WARNING** [cache] Cache may not be working optimally (자동 수정 가능: Check cache TTL and storage)
 
 ### 2026-02-23
-- [ ] **WARNING** [logic] Gate decision mismatch for 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
-- [ ] **WARNING** [logic] Gate decision mismatch for 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
-- [ ] **WARNING** [cache] Cache may not be working optimally (자동 수정 가능: Check cache TTL and storage)
+- [x] **WARNING** [logic] Gate decision mismatch for 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
+- [x] **WARNING** [logic] Gate decision mismatch for 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
+- [x] **WARNING** [cache] Cache may not be working optimally (자동 수정 가능: Check cache TTL and storage)

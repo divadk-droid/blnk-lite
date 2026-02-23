@@ -1,82 +1,55 @@
 const { ethers } = require('ethers');
 
 /**
- * BLNK Lite Analyzer - Minimal RPC calls for free tier
- * 
- * Design: Single getCode() call + local pattern matching
- * No storage reads, no logs, no traces
+ * BLNK Lite Analyzer - Fixed Version
+ * WETH/USDC mismatch bug fix
  */
 
-// Critical patterns only (reduced set for speed)
 const CRITICAL_PATTERNS = {
-  // High-risk: Unlimited minting
-  mintable: ['40c10f19', 'a0712d68'], // mint() signatures
-  
-  // High-risk: Blacklist
-  blacklist: ['e47d606b', 'f9f92be4'], // blacklist / isBlacklisted
-  
-  // Medium-risk: Upgradeable (proxy)
-  upgradeable: ['3659cfe6', '5c60da1b'], // upgradeTo / implementation
-  
-  // Medium-risk: Pausable
-  pausable: ['8456cb59', '5c975abb'], // pause / paused
-  
-  // Critical: Self-destruct / dangerous
-  suspicious: ['0a3b0a4f', '9dc29fac'] // destroy / burnFrom
+  mintable: ['40c10f19', 'a0712d68'],
+  blacklist: ['e47d606b', 'f9f92be4'],
+  upgradeable: ['3659cfe6', '5c60da1b'],
+  pausable: ['8456cb59', '5c975abb'],
+  suspicious: ['0a3b0a4f', '9dc29fac']
 };
 
-// Known safe contract hashes (WETH, USDC, USDT, etc.)
+// Fixed: Correct USDC address
 const SAFE_CONTRACTS = new Set([
   '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // WETH
-  '0xa0b86a33e6441e6c7d3d4b4f5c6d7e8f9a0b1c2d', // USDC
+  '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', // USDC (corrected)
   '0xdac17f958d2ee523a2206206994597c13d831ec7', // USDT
   '0x6b175474e89094c44da98b954eedeac495271d0f', // DAI
 ]);
 
 class LiteAnalyzer {
-  constructor(rpcUrl, network = 'ethereum')
-    this.network = network;
-    this.providers = {
-      ethereum: this.provider,
-  // arbitrum network support
-  arbitrumProvider: new ethers.JsonRpcProvider('https://arb1.arbitrum.io/rpc'),
-    };, network = 'ethereum')
-    this.network = network;
-    this.providers = {
-      ethereum: this.provider,
-  // base network support
-  baseProvider: new ethers.JsonRpcProvider('https://base.llamarpc.com'),
-    }; = 'https://eth.llamarpc.com') {
+  constructor(rpcUrl = 'https://eth.llamarpc.com') {
     this.provider = new ethers.JsonRpcProvider(rpcUrl);
     this.requestCount = 0;
   }
 
-  /**
-   * Minimal gate check - ONLY 1 RPC call
-   * getCode() only, no storage reads
-   */
   async gateCheck(contractAddress) {
     const startTime = Date.now();
     
     try {
-      // Normalize address
-      const normalizedAddr = contractAddress.toLowerCase();
+      // Fixed: Normalize address properly
+      const normalizedAddr = contractAddress.toLowerCase().trim();
       
-      // Check whitelist first (no RPC)
+      // Check whitelist first
       if (SAFE_CONTRACTS.has(normalizedAddr)) {
         return {
           decision: 'PASS',
           riskScore: 10,
-          riskLevel: 'LOW',
+          riskLevel: 'SAFE',
           confidence: 0.95,
-          reason: 'Known safe contract',
+          reason: 'Known safe contract (whitelist)',
           checks: { whitelist: true },
+          isWhitelisted: true,
           latencyMs: Date.now() - startTime,
           rpcCalls: 0
         };
       }
 
-      // SINGLE RPC CALL: getCode
+      // Single RPC call
       this.requestCount++;
       const code = await this.provider.getCode(contractAddress);
       
@@ -88,27 +61,27 @@ class LiteAnalyzer {
           confidence: 1.0,
           reason: 'Not a contract (EOA)',
           checks: { isContract: false },
+          isWhitelisted: false,
           latencyMs: Date.now() - startTime,
           rpcCalls: 1
         };
       }
 
-      // Local pattern matching only
+      // Pattern matching
       const bytecode = code.toLowerCase();
       const detected = this.scanPatterns(bytecode);
-      
-      // Score calculation
       const score = this.calculateScore(detected);
       
-      // Decision
+      // Decision logic
       if (detected.mintable || detected.suspicious) {
         return {
           decision: 'BLOCK',
           riskScore: score,
           riskLevel: 'CRITICAL',
           confidence: 0.85,
-          reason: `Critical patterns: ${Object.keys(detected).join(', ')}`,
+          reason: 'Critical patterns: ' + Object.keys(detected).join(', '),
           checks: detected,
+          isWhitelisted: false,
           latencyMs: Date.now() - startTime,
           rpcCalls: 1
         };
@@ -120,8 +93,9 @@ class LiteAnalyzer {
           riskScore: score,
           riskLevel: 'MEDIUM',
           confidence: 0.75,
-          reason: `Caution patterns: ${Object.keys(detected).join(', ')}`,
+          reason: 'Caution patterns: ' + Object.keys(detected).join(', '),
           checks: detected,
+          isWhitelisted: false,
           latencyMs: Date.now() - startTime,
           rpcCalls: 1
         };
@@ -134,19 +108,20 @@ class LiteAnalyzer {
         confidence: 0.9,
         reason: 'No critical patterns detected',
         checks: detected,
+        isWhitelisted: false,
         latencyMs: Date.now() - startTime,
         rpcCalls: 1
       };
       
     } catch (error) {
-      // RPC failure - fail safe
       return {
         decision: 'BLOCK',
         riskScore: 100,
         riskLevel: 'CRITICAL',
         confidence: 1.0,
-        reason: `RPC error: ${error.message}`,
+        reason: 'RPC error: ' + error.message,
         checks: {},
+        isWhitelisted: false,
         latencyMs: Date.now() - startTime,
         rpcCalls: 1,
         error: error.message
@@ -154,9 +129,6 @@ class LiteAnalyzer {
     }
   }
 
-  /**
-   * Local-only pattern scan (no RPC)
-   */
   scanPatterns(bytecode) {
     const detected = {};
     
@@ -171,7 +143,7 @@ class LiteAnalyzer {
   }
 
   calculateScore(detected) {
-    let score = 10; // Base score
+    let score = 10;
     
     if (detected.mintable) score += 40;
     if (detected.suspicious) score += 35;
@@ -182,13 +154,10 @@ class LiteAnalyzer {
     return Math.min(100, score);
   }
 
-  /**
-   * Get stats for monitoring
-   */
   getStats() {
     return {
       totalRequests: this.requestCount,
-      avgLatencyMs: null // Would track in production
+      avgLatencyMs: null
     };
   }
 }

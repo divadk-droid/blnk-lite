@@ -782,7 +782,7 @@ module.exports = { RewardCalculator };
     const date = new Date().toISOString().split('T')[0];
     const time = new Date().toISOString().split('T')[1].split('.')[0];
     
-    const entry = '\n#### ' + time + ' - 자동 개발\n' +
+    let entry = '\n#### ' + time + ' - 자동 개발\n' +
       '- **구현 완료:** ' + this.implemented.length + '개\n' +
       '- **실패:** ' + this.failed.length + '개\n' +
       '- **건너뜀:** ' + this.skipped.length + '개\n';
