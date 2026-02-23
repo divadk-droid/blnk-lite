@@ -7,12 +7,13 @@
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
+const { TelegramNotifier } = require('../src/telegram-notifier');
 
 const CONFIG = {
   apiUrl: 'https://blnk-lite-production.up.railway.app',
   planPath: path.join(__dirname, '..', 'PLAN.md'),
   progressPath: path.join(__dirname, '..', 'PROGRESS.md'),
-  testInterval: 60 * 60 * 1000, // 1 hour
+  testInterval: 60 * 60 * 1000,
   alertThresholds: {
     latencyWarning: 1000,
     latencyCritical: 5000,
@@ -28,6 +29,7 @@ class AutoImprovementAgent {
       failedTests: 0,
       latencies: []
     };
+    this.notifier = new TelegramNotifier();
   }
 
   async run() {
