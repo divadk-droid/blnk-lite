@@ -14,14 +14,19 @@ class TelegramNotifier {
   constructor() {
     this.token = CONFIG.token;
     this.chatId = CONFIG.chatId;
-    this.baseUrl = `https://api.telegram.org/bot${this.token}`;
+    this.baseUrl = 'https://api.telegram.org/bot' + this.token;
   }
 
-  async sendMessage(text, options = {}) {
-    const url = `${this.baseUrl}/sendMessage`;
+  async sendMessage(text, options) {
+    options = options || {};
+    const url = this.baseUrl + '/sendMessage';
+    
+    // Convert actual newlines to \n for JSON
+    const jsonText = text.replace(/\n/g, '\\n');
+    
     const data = JSON.stringify({
       chat_id: this.chatId,
-      text: text,
+      text: jsonText,
       parse_mode: options.parseMode || 'HTML',
       disable_notification: options.silent || false
     });
@@ -34,7 +39,7 @@ class TelegramNotifier {
         }
       }, (res) => {
         let body = '';
-        res.on('data', chunk => body += chunk);
+        res.on('data', (chunk) => { body += chunk; });
         res.on('end', () => {
           try {
             const result = JSON.parse(body);
@@ -53,21 +58,23 @@ class TelegramNotifier {
   }
 
   async sendDailyReport(metrics) {
-    const message = `📊 <b>BLNK Daily Report</b>
-
-📈 <b>Traffic</b>
-• Total Requests: ${metrics.totalRequests || 0}
-• Avg Latency: ${metrics.avgLatency || 0}ms
-• Cache Hit Rate: ${(metrics.cacheHitRate || 0).toFixed(1)}%
-
-🎯 <b>Verdicts</b>
-• ✅ PASS: ${metrics.pass || 0}
-• ⚠️ WARN: ${metrics.warn || 0}
-• 🚫 BLOCK: ${metrics.block || 0}
-
-🕐 ${new Date().toLocaleString()}
-`;
-    return this.sendMessage(message);
+    const lines = [
+      '📊 <b>BLNK Daily Report</b>',
+      '',
+      '📈 <b>Traffic</b>',
+      '• Total Requests: ' + (metrics.totalRequests || 0),
+      '• Avg Latency: ' + (metrics.avgLatency || 0) + 'ms',
+      '• Cache Hit Rate: ' + ((metrics.cacheHitRate || 0).toFixed(1)) + '%',
+      '',
+      '🎯 <b>Verdicts</b>',
+      '• ✅ PASS: ' + (metrics.pass || 0),
+      '• ⚠️ WARN: ' + (metrics.warn || 0),
+      '• 🚫 BLOCK: ' + (metrics.block || 0),
+      '',
+      '🕐 ' + new Date().toLocaleString()
+    ];
+    
+    return this.sendMessage(lines.join('\n'));
   }
 
   async sendAlert(level, message) {
@@ -77,29 +84,44 @@ class TelegramNotifier {
       critical: '🚨'
     };
     
-    const text = `${icons[level] || '📢'} <b>[${level.toUpperCase()}]</b>\n\n${message}`;
-    return this.sendMessage(text);
+    const icon = icons[level] || '📢';
+    const lines = [
+      icon + ' <b>[' + level.toUpperCase() + ']</b>',
+      '',
+      message
+    ];
+    
+    return this.sendMessage(lines.join('\n'));
   }
 
   async sendImplementationComplete(task) {
-    const message = `✅ <b>Auto-Implementation Complete</b>
-
-Task: ${task}
-Time: ${new Date().toLocaleString()}
-
-Next: Testing and validation`;
-    return this.sendMessage(message);
+    const lines = [
+      '✅ <b>Auto-Implementation Complete</b>',
+      '',
+      'Task: ' + task,
+      'Time: ' + new Date().toLocaleString(),
+      '',
+      'Next: Testing and validation'
+    ];
+    
+    return this.sendMessage(lines.join('\n'));
   }
 
   async sendResearchSummary(ideas) {
-    const list = ideas.map(i => `• ${i}`).join('\n');
-    const message = `🔬 <b>Research Summary</b>
-
-Found ${ideas.length} applicable ideas:
-${list}
-
-Added to PLAN.md`;
-    return this.sendMessage(message);
+    const lines = [
+      '🔬 <b>Research Summary</b>',
+      '',
+      'Found ' + ideas.length + ' applicable ideas:'
+    ];
+    
+    for (let i = 0; i < ideas.length; i++) {
+      lines.push('• ' + ideas[i]);
+    }
+    
+    lines.push('');
+    lines.push('Added to PLAN.md');
+    
+    return this.sendMessage(lines.join('\n'));
   }
 }
 
