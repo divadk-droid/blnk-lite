@@ -17,7 +17,14 @@
 ##
 ##
 ##
-#### 17:59:36 - Skill Generation
+##
+#### 18:01:15 - 자동 테스트
+- **테스트 수행:** 3개
+- **실패:** 0개
+- **평균 지연:** 293ms
+- **에러율:** 0.0000
+- **발견 이슈:** 4개
+## 17:59:36 - Skill Generation
 - Generated skills: 0
 - Patterns analyzed: 12
 - Skills: 
