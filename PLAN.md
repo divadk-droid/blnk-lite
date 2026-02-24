@@ -252,7 +252,7 @@ event Unstaked(address indexed user, uint256 amount);
 - [ ] 50% 소각 로직
 - [ ] 이벤트 emit
 - [ ] Foundry 테스트 작성
-- [ ] Base 네트워크 배포 준비
+- [x] Base 네트워크 배포 준비
 
 **목표일:** 2026-02-25
 
@@ -284,7 +284,7 @@ event Unstaked(address indexed user, uint256 amount);
 #### 구현 체크리스트
 - [ ] 이벤트 리스너 구현 `autoImplement`
 - [ ] WSS 연결 및 재연결 로직
-- [ ] SQLite DB 업데이트
+- [x] SQLite DB 업데이트
 - [ ] 티어 기반 크레딧 시스템
 - [ ] 에러 처리 및 로깅
 
@@ -314,7 +314,7 @@ GET /api/v1/alpha/trending
 - 지난 1시간 동안 50회 이상 요청되고 "PASS" 반환한 컨트랙트 주소 JSON 배열 반환
 
 #### 구현 체크리스트
-- [ ] Alpha API 엔드포인트 생성 `autoImplement`
+- [x] Alpha API 엔드포인트 생성 `autoImplement`
 - [ ] requirePlatinumTier 미들웨어
 - [ ] 블록체인/DB 스테이킹 확인
 - [ ] 트렌딩 컨트랙트 집계 로직
