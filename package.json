@@ -5,7 +5,11 @@
   "main": "src/lite-server.js",
   "scripts": {
     "start": "node src/lite-server.js",
-    "dev": "nodemon src/lite-server.js"
+    "dev": "nodemon src/lite-server.js",
+    "test": "echo 'Run: node scripts/test-sepolia.js for testnet tests'",
+    "verify": "node scripts/verify-code.js",
+    "deploy:sepolia": "node scripts/deploy-sepolia.js",
+    "deploy:base": "node scripts/deploy-base.js"
   },
   "dependencies": {
     "express": "^4.18.2",

@@ -1,0 +1,117 @@
+{
+  "passed": [
+    {
+      "name": "Contracts exist",
+      "message": "Core contracts missing"
+    },
+    {
+      "name": "Deployment scripts exist",
+      "message": "Deployment scripts missing"
+    },
+    {
+      "name": "Tests exist",
+      "message": "Test files missing"
+    },
+    {
+      "name": "Documentation complete",
+      "message": "Documentation incomplete"
+    },
+    {
+      "name": "SPDX license identifier present",
+      "message": "Missing SPDX license"
+    },
+    {
+      "name": "Pragma version specified",
+      "message": "Missing pragma version"
+    },
+    {
+      "name": "OpenZeppelin imports used",
+      "message": "Not using OpenZeppelin"
+    },
+    {
+      "name": "ReentrancyGuard used in PaymentGate",
+      "message": "Missing ReentrancyGuard"
+    },
+    {
+      "name": "SafeERC20 used",
+      "message": "Not using SafeERC20"
+    },
+    {
+      "name": "Burn address is correct",
+      "message": "Burn address incorrect"
+    },
+    {
+      "name": "Events defined",
+      "message": "Events not defined"
+    },
+    {
+      "name": "Access control (Ownable) used",
+      "message": "Missing access control"
+    },
+    {
+      "name": "No hardcoded private keys",
+      "message": "Hardcoded test key found"
+    },
+    {
+      "name": ".env.example exists",
+      "message": "Environment template missing"
+    },
+    {
+      "name": "No .env committed",
+      "message": ".env file should not be committed"
+    },
+    {
+      "name": "Emergency controls in V2",
+      "message": "V2 contract missing pause functionality"
+    },
+    {
+      "name": "README has installation instructions",
+      "message": "Installation guide missing"
+    },
+    {
+      "name": "README has API documentation",
+      "message": "API documentation missing"
+    },
+    {
+      "name": "Tokenomics documented",
+      "message": "Tokenomics not documented"
+    },
+    {
+      "name": "Deployment guide exists",
+      "message": "Deployment guide missing"
+    },
+    {
+      "name": "Integration tests exist",
+      "message": "Integration tests missing"
+    },
+    {
+      "name": "Testnet deployment script exists",
+      "message": "Testnet deployment script missing"
+    },
+    {
+      "name": "Testnet test script exists",
+      "message": "Testnet test script missing"
+    },
+    {
+      "name": "package.json has name",
+      "message": "Package name missing"
+    },
+    {
+      "name": "Dependencies specified",
+      "message": "No dependencies"
+    },
+    {
+      "name": "Start script defined",
+      "message": "Start script missing"
+    }
+  ],
+  "warnings": [],
+  "failed": [
+    {
+      "name": "Test script defined",
+      "message": "Test script missing"
+    }
+  ],
+  "score": 26,
+  "total": 27
+}
