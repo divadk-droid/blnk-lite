@@ -238,6 +238,69 @@ app.get('/metrics', async (req, res) => {
   });
 });
 
+// Treasury system endpoints
+const { TreasurySystem } = require('./treasury-system');
+const treasury = new TreasurySystem();
+
+// Schedule auto-execution (daily)
+treasury.scheduleAutoExecution(24);
+
+// Get treasury stats
+app.get('/api/v1/treasury/stats', (req, res) => {
+  res.json({
+    stats: treasury.getStats(),
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Record revenue (webhook from payment system)
+app.post('/api/v1/treasury/revenue', (req, res) => {
+  try {
+    const { amount, source, metadata } = req.body;
+    
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ error: 'Valid amount required' });
+    }
+    
+    const record = treasury.recordRevenue(amount, source, metadata);
+    
+    res.json({
+      success: true,
+      record,
+      pendingRevenue: treasury.revenue.total
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Execute manual distribution
+app.post('/api/v1/treasury/execute', async (req, res) => {
+  try {
+    const result = await treasury.executeDistribution();
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get burn history
+app.get('/api/v1/treasury/burns', (req, res) => {
+  const { limit = 100 } = req.query;
+  res.json({
+    burns: treasury.getBurnHistory(parseInt(limit)),
+    total: treasury.burns.total
+  });
+});
+
+// Get revenue history
+app.get('/api/v1/treasury/revenue-history', (req, res) => {
+  const { limit = 100 } = req.query;
+  res.json({
+    revenue: treasury.getRevenueHistory(parseInt(limit))
+  });
+});
+
 // Report generation endpoints
 const { ReportGenerator } = require('./report-generator');
 const reportGenerator = new ReportGenerator();
@@ -517,6 +580,25 @@ app.get('/api/v1/auth/me', (req, res) => {
   });
 });
 
+// WebSocket stats endpoint
+app.get('/api/v1/websocket/stats', (req, res) => {
+  res.json({
+    stats: wsAlerts.getStats(),
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Trigger test alert (for testing)
+app.post('/api/v1/websocket/test-alert', (req, res) => {
+  const { token } = req.body;
+  wsAlerts.triggerTestAlert(token);
+  res.json({
+    success: true,
+    message: 'Test alert triggered',
+    token: token || 'default'
+  });
+});
+
 // Stripe webhook (placeholder)
 app.post('/webhooks/stripe', express.raw({ type: 'application/json' }), async (req, res) => {
   const event = JSON.parse(req.body);
@@ -549,12 +631,13 @@ setInterval(() => {
 }, 60000); // Check every minute
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`🛡️  BLNK LITE running on port ${PORT}`);
   console.log(`📊 Mode: Free tier (1 RPC call per gate check)`);
   console.log(`💾 Cache: SQLite (file-based)`);
   console.log(`🎯 Rate Limiting: 4 tiers (FREE/BASIC/PRO/ENTERPRISE)`);
   console.log(`📈 Daily Reports: Auto-scheduled`);
+  console.log(`🔌 WebSocket: Real-time alerts enabled`);
   console.log(`\nEndpoints:`);
   console.log(`  POST /api/v1/gate           - Pre-trade gate (1 RPC call)`);
   console.log(`  POST /api/v1/policy/check   - Policy compliance check`);
@@ -562,6 +645,14 @@ app.listen(PORT, () => {
   console.log(`  GET  /health                - Health check`);
   console.log(`  GET  /version               - Version info`);
   console.log(`  GET  /metrics               - Daily metrics`);
+  console.log(`  WS   /ws                    - WebSocket real-time alerts`);
 });
+
+// Initialize WebSocket server
+const { WebSocketAlertSystem } = require('./websocket-alerts');
+const wsAlerts = new WebSocketAlertSystem(server);
+
+// Export for use in other modules
+module.exports = { app, server, wsAlerts };
 
 module.exports = app;
