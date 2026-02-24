@@ -8,6 +8,7 @@
     "dev": "nodemon src/lite-server.js",
     "test": "echo 'Run: node scripts/test-sepolia.js for testnet tests'",
     "verify": "node scripts/verify-code.js",
+    "check:sepolia": "node scripts/check-sepolia.js",
     "deploy:sepolia": "node scripts/deploy-sepolia.js",
     "deploy:base": "node scripts/deploy-base.js"
   },
