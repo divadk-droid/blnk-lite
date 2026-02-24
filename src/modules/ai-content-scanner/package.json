@@ -1,0 +1,52 @@
+{
+  "name": "@blnk/ai-content-scanner",
+  "version": "2.0.0-phase2",
+  "description": "AI Content Risk Scanner with Enhanced Deepfake Detection",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint .",
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "demo": "cd demo && python -m http.server 8080"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.0",
+    "express-validator": "^7.0.0",
+    "multer": "^1.4.5-lts.1",
+    "sharp": "^0.33.0",
+    "fluent-ffmpeg": "^2.1.2",
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@ffprobe-installer/ffprobe": "^2.1.0",
+    "opencv4nodejs": "^5.6.0",
+    "@tensorflow/tfjs-node": "^4.15.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.0",
+    "eslint": "^8.55.0",
+    "supertest": "^6.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "ai",
+    "deepfake",
+    "content-moderation",
+    "nft",
+    "risk-scanner",
+    "face-detection",
+    "video-analysis"
+  ],
+  "author": "BLNK AI Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/blnk/ai-content-scanner"
+  }
+}

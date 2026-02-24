@@ -6,9 +6,13 @@ const { Logger } = require('./logger');
 const { RateLimiter } = require('./rate-limiter');
 const { PaymentManager } = require('./payment');
 const { I18n } = require('./i18n');
+const { registerAIContentRoutes } = require('./modules/ai-content-scanner/api/routes');
 
 const app = express();
 app.use(express.json());
+
+// Register AI Content Scanner routes
+registerAIContentRoutes(app);
 
 // Initialize
 const analyzer = new LiteAnalyzer();
@@ -644,13 +648,17 @@ const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => {
   console.log(`🛡️  BLNK LITE running on port ${PORT}`);
   console.log(`📊 Mode: Free tier (1 RPC call per gate check)`);
+  console.log(`🤖 AI Content Scanner: Phase 1 - Basic Structure`);
   console.log(`💾 Cache: SQLite (file-based)`);
   console.log(`🎯 Rate Limiting: 4 tiers (FREE/BASIC/PRO/ENTERPRISE)`);
   console.log(`📈 Daily Reports: Auto-scheduled`);
   console.log(`🔌 WebSocket: Real-time alerts enabled`);
   console.log(`\nEndpoints:`);
-  console.log(`  POST /api/v1/gate           - Pre-trade gate (1 RPC call)`);
-  console.log(`  POST /api/v1/policy/check   - Policy compliance check`);
+  console.log(`  POST /api/v1/gate              - Pre-trade gate (1 RPC call)`);
+  console.log(`  POST /api/v1/ai-content/scan   - AI content risk scan`);
+  console.log(`  POST /api/v1/ai-content/verify - C2PA verification`);
+  console.log(`  POST /api/v1/ai-content/nft-gate - NFT minting gate`);
+  console.log(`  POST /api/v1/policy/check      - Policy compliance check`);
   console.log(`  GET  /api/v1/policies       - List available policies`);
   console.log(`  GET  /health                - Health check`);
   console.log(`  GET  /version               - Version info`);
