@@ -7,24 +7,33 @@
 ### 핵심 가치
 - **1 RPC call**로 즉시 PASS/WARN/BLOCK 판정
 - **2ms** 응답 시간 (캐시 히트)
-- **100회/일 물리** 물리 티어
-- **4단계 구독** 모델 (FREE → BASIC → PRO → ENTERPRISE)
+- **50% 소각** 토크노믹스 (수수료의 50% 자동 소각)
+- **4단계 스테이킹** (FREE → BASIC → PRO → ENTERPRISE)
+
+---
+
+## 현재 상태
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| 스마트 컨트랙트 | 완료 | 4개 컨트랙트 작성 |
+| 백엔드 API | 완료 | 30+ 엔드포인트 |
+| 프론트엔드 | 완료 | Next.js 대시보드 |
+| 문서화 | 완료 | 20+ 문서 |
+| 검증 | 완료 | 96% 점수 |
+| 테스트넷 | 준비완료 | 배포 가능 |
 
 ---
 
 ## 아키텍처
 
 ```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   Agent     │────▶│  BLNK API   │────▶│  Response   │
-└─────────────┘     └──────┬──────┘     └─────────────┘
-                           │
-              ┌────────────┼────────────┐
-              ▼            ▼            ▼
-        ┌─────────┐  ┌─────────┐  ┌──────────┐
-        │  Cache  │  │  Policy │  │  Logger  │
-        │ SQLite  │  │  Pack   │  │          │
-        └─────────┘  └─────────┘  └──────────┘
+AI Agent → BLNK API → Risk Decision
+                ↓
+        ┌───────┼───────┐
+        ↓       ↓       ↓
+    Staking  Payment  Alpha Feed
+    Contract   Gate    (Platinum)
 ```
 
 ---
@@ -33,89 +42,132 @@
 
 | 구성 요소 | 기술 |
 |----------|------|
-| 서버 | Node.js + Express |
-| 캐시 | SQLite (파일 기반) |
-| RPC | Public RPC (Llama) / Alchemy (Pro) |
-| 배포 | Railway |
-| 분석 | Ethers.js + Bytecode 패턴 매칭 |
+| 스마트 컨트랙트 | Solidity + OpenZeppelin |
+| 백엔드 | Node.js + Express |
+| 프론트엔드 | Next.js + TailwindCSS |
+| 캐시 | SQLite (Redis 업그레이드) |
+| 네트워크 | Base (L2) |
+| 배포 | Railway + Vercel |
 
 ---
 
-## 핵심 파일 구조
+## 파일 구조
 
 ```
 blnk-backend/
-├── src/
-│   ├── lite-server.js      # 메인 서버
-│   ├── lite-analyzer.js    # 1 RPC 분석기
-│   ├── sqlite-cache.js     # SQLite 캐시
-│   ├── rate-limiter.js     # 티어 기반 제한
-│   ├── policy-pack.js      # 정책 팩
-│   ├── logger.js           # 요청 로깅
-│   ├── alert-system.js     # 알림 시스템
-│   └── payment.js          # API 키 관리
-├── scripts/
-│   └── cache-warmer.js     # 캐시 워밍
-├── ACP_OFFERING.json       # ACP 등록 스펙
-└── README.md               # 사용자 가이드
+├── contracts/          # 스마트 컨트랙트
+│   ├── BLNKToken.sol
+│   ├── BlnkPaymentGate.sol
+│   ├── BlnkPaymentGateV2.sol
+│   └── BLNKLiquidityManager.sol
+├── src/               # 백엔드 소스
+│   ├── lite-server.js
+│   ├── custom-risk-engine.js
+│   ├── payment-listener.js
+│   ├── alpha-feed.js
+│   ├── websocket-alerts.js
+│   ├── treasury-system.js
+│   ├── i18n.js
+│   └── report-generator.js
+├── frontend/          # 프론트엔드
+│   └── burn-tracker/
+├── scripts/           # 배포/테스트 스크립트
+│   ├── deploy-sepolia.js
+│   ├── deploy-base.js
+│   ├── test-sepolia.js
+│   ├── verify-code.js
+│   └── token-metrics.js
+├── test/              # 테스트
+│   └── integration.test.js
+└── docs/              # 문서 (20+)
+    ├── README.md
+    ├── VERIFICATION_REPORT.md
+    ├── LAUNCH_CHECKLIST.md
+    ├── DEPLOYMENT_GUIDE.md
+    ├── MULTISIG_SETUP.md
+    ├── BUG_BOUNTY.md
+    ├── INCIDENT_RESPONSE.md
+    ├── ROADMAP.md
+    └── ...
 ```
 
 ---
 
 ## API 엔드포인트
 
-| 엔드포인트 | 메서드 | 설명 | 가격 |
-|-----------|--------|------|------|
-| `/api/v1/gate` | POST | 사전 거래 리스크 게이트 | $1/100회 |
-| `/api/v1/policy/check` | POST | 정책 준수 검사 | $15/회 |
-| `/api/v1/policies` | GET | 정책 목록 | 물리 |
-| `/health` | GET | 헬스체크 | 물리 |
-| `/version` | GET | 버전 정보 | 물리 |
-| `/metrics` | GET | 일일 메트릭 | 물리 |
+### 코어
+| 엔드포인트 | 메서드 | 설명 |
+|-----------|--------|------|
+| `/api/v1/gate` | POST | 리스크 게이트 |
+| `/api/v1/scan` | POST | 토큰 스캔 |
+| `/api/v1/policy/check` | POST | 정책 검사 |
+
+### A2A
+| 엔드포인트 | 메서드 | 설명 |
+|-----------|--------|------|
+| `/api/v1/alpha/trending` | GET | 알파 피드 (Platinum) |
+| `/api/v1/treasury/stats` | GET | 트레저리 통계 |
+| `/api/v1/websocket/stats` | GET | WebSocket 상태 |
+
+### 리포트
+| 엔드포인트 | 메서드 | 설명 |
+|-----------|--------|------|
+| `/api/v1/reports/pdf` | POST | PDF 리포트 |
+| `/api/v1/reports/excel` | POST | Excel 리포트 |
+| `/api/v1/reports/portfolio` | POST | 포트폴리오 리포트 |
 
 ---
 
 ## 토큰 유틸리티
 
-**$BLNK는 결제 수단이 아닙니다.**
+### 스테이킹 티어
+| 티어 | 스테이킹 | 일일 호출 | 특전 |
+|------|---------|----------|------|
+| FREE | 0 BLNK | 5 | 기본 |
+| BASIC | 500 BLNK | 500 | 표준 |
+| PRO | 5,000 BLNK | 2,000 | 알파 피드 |
+| ENTERPRISE | 50,000 BLNK | 10,000 | 전부 |
 
-| 티어 | 일일 호출 | $BLNK 보유 | 구독료 |
-|------|----------|-----------|--------|
-| FREE | 100 | 0 | $0 |
-| BASIC | 500 | 100 | $19/월 |
-| PRO | 2,000 | 500 | $99/월 |
-| ENTERPRISE | 10,000 | 2,500 | $499/월 |
+### 토크노믹스
+- **총공급**: 1,000,000,000 BLNK
+- **소각**: 수수료의 50% 자동 소각
+- **분배**: 50% 발행자, 15% 팀, 15% 마케팅, 10% 커뮤니티, 10% 트레저리
 
-**모델:** Hold-to-Unlock (보유만으로 권리 활성화)
+---
+
+## 주요 문서
+
+| 문서 | 목적 |
+|------|------|
+| `VERIFICATION_REPORT.md` | 검증 보고서 (96%) |
+| `LAUNCH_CHECKLIST.md` | 런칭 체크리스트 |
+| `DEPLOYMENT_GUIDE.md` | 배포 가이드 |
+| `SEPOLIA_DEPLOYMENT.md` | 테스트넷 배포 |
+| `MULTISIG_SETUP.md` | 멀티시그 설정 |
+| `BUG_BOUNTY.md` | 버그 바운티 ($100K) |
+| `INCIDENT_RESPONSE.md` | 인시던트 대응 |
+| `ROADMAP.md` | 2026 로드맵 |
 
 ---
 
 ## 운영 정보
 
-- **배포 URL:** https://blnk-lite-production.up.railway.app
-- **GitHub:** https://github.com/divadk-droid/blnk-lite
-- **상태:** ✅ 프로덕션 준비 완료
-- **업타임:** 99.9%+
-
----
-
-## 관련 문서
-
-- `PLAN.md` - 개선 계획
-- `PROGRESS.md` - 진행 로그
-- `README.md` - 사용자 가이드
-- `TOKEN_UTILITY.md` - 토큰 유틸리티
-- `ACP_OFFERING.json` - ACP 등록 스펙
+- **API**: https://blnk-lite-production.up.railway.app
+- **대시보드**: https://burn.blnk.io (예정)
+- **GitHub**: https://github.com/divadk-droid/blnk-lite
+- **네트워크**: Base (Chain ID: 8453)
+- **상태**: 테스트넷 준비완료
 
 ---
 
 ## 연락처
 
-- 문의: token@blnk.io
-- 지원: https://discord.gg/blnk
+- **이메일**: token@blnk.io
+- **디스코드**: https://discord.gg/blnk
+- **트위터**: https://twitter.com/blnk_risk
 
 ---
 
-**마지막 업데이트:** 2026-02-23  
-**버전:** 1.0.0  
-**상태:** 운영 준비 완료
+**마지막 업데이트:** 2026-02-24  
+**버전:** 2.0.0  
+**상태:** 테스트넷 배포 준비완료
