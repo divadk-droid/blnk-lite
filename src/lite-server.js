@@ -5,6 +5,7 @@ const { RiskSchema, ExecutionGate } = require('./schema');
 const { Logger } = require('./logger');
 const { RateLimiter } = require('./rate-limiter');
 const { PaymentManager } = require('./payment');
+const { I18n } = require('./i18n');
 
 const app = express();
 app.use(express.json());
@@ -15,6 +16,7 @@ const cache = new SQLiteCache();
 const logger = new Logger();
 const rateLimiter = new RateLimiter();
 const paymentManager = new PaymentManager();
+const i18n = new I18n();
 let cacheReady = false;
 
 // Initialize cache on startup
@@ -203,6 +205,12 @@ app.post('/api/v1/gate', async (req, res) => {
       });
     }
     
+    // Apply i18n if requested
+    const lang = i18n.detectLanguage(req);
+    if (lang !== 'en') {
+      result = i18n.translateResponse(result, lang);
+    }
+    
     res.json(result);
     
   } catch (error) {
@@ -227,6 +235,25 @@ app.get('/metrics', async (req, res) => {
     daily_report: report,
     cache: cacheStats,
     analyzer: analyzer.getStats()
+  });
+});
+
+// i18n endpoints
+app.get('/api/v1/i18n/languages', (req, res) => {
+  res.json({
+    languages: i18n.getSupportedLanguages(),
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.post('/api/v1/i18n/translate', (req, res) => {
+  const { key, lang } = req.body;
+  const translation = i18n.t(key, lang);
+  
+  res.json({
+    key,
+    lang: lang || 'en',
+    translation
   });
 });
 
