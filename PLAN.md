@@ -96,3 +96,23 @@
 
 **마지막 업데이트:** 2026-02-24  
 **다음 검토:** 2026-02-25
+
+
+## Research Ideas
+
+### 2026-02-24
+- [ ] MEV protection (from Trading Assistant Pro)
+- [ ] slippage prediction (from Trading Assistant Pro)
+- [ ] risk scoring (from Portfolio Guardian)
+- [ ] alert system (from Portfolio Guardian)
+- [ ] vulnerability detection (from Smart Contract Auditor)
+- [ ] custom risk scoring (from aGDP.io Bounties - Custom Risk Scoring)
+- [ ] project-specific weights (from aGDP.io Bounties - Custom Risk Scoring)
+- [ ] websocket alerts (from aGDP.io Bounties - Real-time WebSocket Alerts)
+- [ ] real-time monitoring (from aGDP.io Bounties - Real-time WebSocket Alerts)
+- [ ] webhook integration (from aGDP.io Bounties - Webhook Integration)
+- [ ] discord/slack/telegram (from aGDP.io Bounties - Webhook Integration)
+- [ ] korean chinese japanese (from aGDP.io Bounties - Multi-language Support)
+- [ ] pdf generation (from aGDP.io Bounties - PDF/Excel Reports)
+- [ ] excel export (from aGDP.io Bounties - PDF/Excel Reports)
+- [ ] automated reports (from aGDP.io Bounties - PDF/Excel Reports)
