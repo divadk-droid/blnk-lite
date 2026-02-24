@@ -238,6 +238,16 @@ app.get('/metrics', async (req, res) => {
   });
 });
 
+// Alpha Feed API endpoints
+const { AlphaFeed } = require('./alpha-feed');
+const alphaFeed = new AlphaFeed();
+
+// Apply middleware and route
+app.get('/api/v1/alpha/trending', 
+  alphaFeed.requirePlatinumTier.bind(alphaFeed)(),
+  alphaFeed.handleGetTrending.bind(alphaFeed)
+);
+
 // Treasury system endpoints
 const { TreasurySystem } = require('./treasury-system');
 const treasury = new TreasurySystem();
