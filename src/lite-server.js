@@ -230,6 +230,94 @@ app.get('/metrics', async (req, res) => {
   });
 });
 
+// Custom Risk Scoring endpoints
+const { CustomRiskEngine } = require('./custom-risk-engine');
+const customRiskEngine = new CustomRiskEngine();
+
+// List risk model templates
+app.get('/api/v1/risk/models', (req, res) => {
+  res.json({
+    templates: customRiskEngine.getTemplates(),
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Create custom risk model
+app.post('/api/v1/risk/models', async (req, res) => {
+  try {
+    const { name, description, factors, thresholds } = req.body;
+    const wallet = req.headers['x-wallet-address'] || 'anonymous';
+    
+    const model = customRiskEngine.createModel(wallet, {
+      name,
+      description,
+      factors,
+      thresholds
+    });
+    
+    res.json({
+      success: true,
+      model: {
+        id: model.id,
+        name: model.name,
+        description: model.description,
+        factors: model.factors,
+        thresholds: model.thresholds,
+        createdAt: model.createdAt
+      }
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Calculate risk with custom model
+app.post('/api/v1/risk/calculate', async (req, res) => {
+  const startTime = Date.now();
+  
+  try {
+    const { token, modelId, analysis } = req.body;
+    
+    if (!token || !analysis) {
+      return res.status(400).json({ error: 'Token and analysis data required' });
+    }
+    
+    // Calculate custom risk score
+    const result = customRiskEngine.calculateScore(analysis, modelId);
+    
+    res.json({
+      schema_version: '1.0.0',
+      timestamp: new Date().toISOString(),
+      latency_ms: Date.now() - startTime,
+      token,
+      ...result
+    });
+    
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Compare multiple models
+app.post('/api/v1/risk/compare', async (req, res) => {
+  try {
+    const { analysis, modelIds } = req.body;
+    
+    if (!analysis || !Array.isArray(modelIds)) {
+      return res.status(400).json({ error: 'Analysis and modelIds array required' });
+    }
+    
+    const comparison = customRiskEngine.compareModels(analysis, modelIds);
+    
+    res.json({
+      timestamp: new Date().toISOString(),
+      comparison
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Policy Pack endpoints
 const { PolicyPack } = require('./policy-pack');
 const policyPack = new PolicyPack();
