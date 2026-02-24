@@ -58,7 +58,7 @@
 
 ### 마케팅
 - [ ] Twitter 공지
-- [ ] Discord 커뮤니티
+- [x] Discord 커뮤니티
 - [ ] aGDP.io 프로필 완성
 - [ ] 버그 바운티 런칭
 
@@ -69,7 +69,7 @@
 ## 백로그
 
 ### Q2 2026
-- [ ] 멀티체인 확장 (Arbitrum, Optimism)
+- [x] 멀티체인 확장 (Arbitrum, Optimism)
 - [ ] 모바일 앱
 - [ ] AI 리스크 모델
 
@@ -101,18 +101,27 @@
 ## Research Ideas
 
 ### 2026-02-24
-- [ ] MEV protection (from Trading Assistant Pro)
-- [ ] slippage prediction (from Trading Assistant Pro)
+- [x] MEV protection (from Trading Assistant Pro)
+- [x] slippage prediction (from Trading Assistant Pro)
 - [ ] risk scoring (from Portfolio Guardian)
-- [ ] alert system (from Portfolio Guardian)
-- [ ] vulnerability detection (from Smart Contract Auditor)
+- [x] alert system (from Portfolio Guardian)
+- [x] vulnerability detection (from Smart Contract Auditor)
 - [ ] custom risk scoring (from aGDP.io Bounties - Custom Risk Scoring)
 - [ ] project-specific weights (from aGDP.io Bounties - Custom Risk Scoring)
-- [ ] websocket alerts (from aGDP.io Bounties - Real-time WebSocket Alerts)
-- [ ] real-time monitoring (from aGDP.io Bounties - Real-time WebSocket Alerts)
-- [ ] webhook integration (from aGDP.io Bounties - Webhook Integration)
-- [ ] discord/slack/telegram (from aGDP.io Bounties - Webhook Integration)
+- [x] websocket alerts (from aGDP.io Bounties - Real-time WebSocket Alerts)
+- [x] real-time monitoring (from aGDP.io Bounties - Real-time WebSocket Alerts)
+- [x] webhook integration (from aGDP.io Bounties - Webhook Integration)
+- [x] discord/slack/telegram (from aGDP.io Bounties - Webhook Integration)
 - [ ] korean chinese japanese (from aGDP.io Bounties - Multi-language Support)
 - [ ] pdf generation (from aGDP.io Bounties - PDF/Excel Reports)
 - [ ] excel export (from aGDP.io Bounties - PDF/Excel Reports)
 - [ ] automated reports (from aGDP.io Bounties - PDF/Excel Reports)
+
+
+## 자동 감지 (Auto-Detected)
+
+
+### 2026-02-24
+- [x] **WARNING** [logic] Gate decision mismatch for 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
+- [x] **WARNING** [logic] Gate decision mismatch for 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
+- [x] **WARNING** [cache] Cache may not be working optimally (자동 수정 가능: Check cache TTL and storage)
