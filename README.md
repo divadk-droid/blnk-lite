@@ -1,18 +1,44 @@
-# BLNK Risk Gate
+# BLNK Risk Gate - A2A Security Agent
 
-**Pre-trade risk infrastructure for AI agents.**
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Base Network](https://img.shields.io/badge/Network-Base-0052FF)](https://base.org)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green)](https://nodejs.org)
 
-One RPC call. Instant verdict. Production-ready.
+> Pre-trade risk infrastructure for AI agents on Virtuals Protocol (aGDP) ecosystem
+
+## 🎯 Overview
+
+BLNK Risk Gate is a mandatory pre-trade security gate for AI agents operating in DeFi. With a single RPC call, agents get instant PASS/WARN/BLOCK decisions before executing trades.
+
+**Key Features:**
+- ⚡ **1 RPC Call**: Sub-2ms response with caching
+- 🛡️ **Bytecode Analysis**: Detects mintable, blacklist, upgradeable patterns
+- 📊 **Risk Scoring**: 0-100 score with confidence level
+- 🔥 **Deflationary Tokenomics**: 50% of fees burned automatically
+- 🌍 **Multi-language**: Korean, Chinese, Japanese, English
+
+## 🏗️ Architecture
 
 ```
-🌐 https://blnk-lite-production.up.railway.app
+┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
+│  AI Agent       │────▶│  BLNK Risk Gate  │────▶│  PASS/WARN/BLOCK│
+│  (Virtuals)     │     │  (Base Network)  │     │  Decision       │
+└─────────────────┘     └──────────────────┘     └─────────────────┘
+                                │
+              ┌─────────────────┼─────────────────┐
+              ▼                 ▼                 ▼
+        ┌──────────┐      ┌──────────┐      ┌──────────┐
+        │  Staking │      │  Payment │      │  Alpha   │
+        │  Contract│      │  Gate    │      │  Feed    │
+        └──────────┘      └──────────┘      └──────────┘
 ```
 
-## Quick Start
+## 🚀 Quick Start
 
-### 1. Test the Gate (Free - 100 calls/day)
+### API Usage
 
 ```bash
+# Check if a token is safe to trade
 curl -X POST https://blnk-lite-production.up.railway.app/api/v1/gate \
   -H "Content-Type: application/json" \
   -d '{
@@ -29,189 +55,198 @@ curl -X POST https://blnk-lite-production.up.railway.app/api/v1/gate \
   "risk_score": 10,
   "risk_level": "SAFE",
   "confidence": 0.95,
-  "execution_allowed": true,
-  "recommended_next_call": null,
-  "rate_limit": {
-    "tier": "FREE",
-    "used": 1,
-    "limit": 100,
-    "remaining": 99
-  }
+  "latency_ms": 2
 }
 ```
 
-### 2. Check Policy Compliance
+## 📦 Installation
 
 ```bash
-curl -X POST https://blnk-lite-production.up.railway.app/api/v1/policy/check \
-  -H "Content-Type: application/json" \
-  -d '{
-    "token": "0x...",
-    "policyId": "conservative"
-  }'
+# Clone repository
+git clone https://github.com/divadk-droid/blnk-lite.git
+cd blnk-lite
+
+# Install dependencies
+npm install
+
+# Set up environment
+cp .env.example .env
+# Edit .env with your configuration
+
+# Start server
+npm start
 ```
 
-**Policies:** `conservative` | `moderate` | `aggressive` | `defi_yield`
+## 🔧 Configuration
 
-### 3. JavaScript/TypeScript
+### Environment Variables
 
-```typescript
-const BLNK_API = 'https://blnk-lite-production.up.railway.app';
+```bash
+# Server
+PORT=3000
+NODE_ENV=production
 
-async function checkRisk(token: string, actionType: string) {
-  const response = await fetch(`${BLNK_API}/api/v1/gate`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ token, actionType })
-  });
-  
-  const result = await response.json();
-  
-  if (result.decision === 'BLOCK') {
-    console.error('🚫 Trade blocked:', result.risk_reasons);
-    return false;
-  }
-  
-  if (result.decision === 'WARN') {
-    console.warn('⚠️  Risk detected:', result.risk_score);
-    // Optional: trigger deep scan
-    console.log('Recommended:', result.recommended_next_call);
-  }
-  
-  return result.execution_allowed;
+# Base Network
+BASE_RPC_URL=https://mainnet.base.org
+BLNK_TOKEN_ADDRESS=0x...
+PAYMENT_GATE_ADDRESS=0x...
+
+# Database
+DATABASE_URL=sqlite://./cache.db
+
+# Optional: Alchemy for better performance
+ALCHEMY_BASE_KEY=...
+```
+
+## 📚 API Documentation
+
+### Core Endpoints
+
+| Endpoint | Method | Description | Price |
+|----------|--------|-------------|-------|
+| `/api/v1/gate` | POST | Pre-trade risk gate | 1 BLNK |
+| `/api/v1/scan` | POST | Deep token analysis | 5 BLNK |
+| `/api/v1/policy/check` | POST | Policy compliance | 15 BLNK |
+| `/api/v1/alpha/trending` | GET | Alpha feed (Platinum only) | Free |
+
+### WebSocket
+
+```javascript
+const ws = new WebSocket('wss://blnk-lite-production.up.railway.app/ws');
+
+ws.onopen = () => {
+  ws.send(JSON.stringify({
+    type: 'subscribe',
+    tokens: ['0x...']
+  }));
+};
+
+ws.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  console.log('Alert:', data);
+};
+```
+
+## 🎨 Dashboard
+
+Visit the burn tracker dashboard:
+
+```bash
+cd frontend/burn-tracker
+npm install
+npm run dev
+```
+
+Open http://localhost:3000
+
+## 🪙 Tokenomics
+
+### $BLNK Token
+
+| Allocation | Percentage | Amount |
+|------------|-----------|--------|
+| Issuer | 50% | 500M BLNK |
+| Team | 15% | 150M BLNK |
+| Marketing | 15% | 150M BLNK |
+| Community | 10% | 100M BLNK |
+| Treasury | 10% | 100M BLNK |
+
+### Staking Tiers
+
+| Tier | Stake Required | Daily Calls |
+|------|---------------|-------------|
+| FREE | 0 BLNK | 5 |
+| BASIC | 500 BLNK | 500 |
+| PRO | 5,000 BLNK | 2,000 |
+| ENTERPRISE | 50,000 BLNK | 10,000 |
+
+### Fee Distribution
+
+- **50%** → Burned (deflationary)
+- **30%** → LP Rewards
+- **20%** → Development
+
+## 🧪 Testing
+
+```bash
+# Run tests
+npm test
+
+# Run specific test
+npm test -- gate.test.js
+
+# Test with coverage
+npm run test:coverage
+```
+
+## 🚀 Deployment
+
+### Smart Contracts (Base Network)
+
+```bash
+cd contracts
+forge build
+forge script script/Deploy.s.sol --rpc-url $BASE_RPC_URL --broadcast
+```
+
+See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for details.
+
+### Backend (Railway)
+
+```bash
+# Deploy to Railway
+railway login
+railway up
+```
+
+### Dashboard (Vercel)
+
+```bash
+cd frontend/burn-tracker
+vercel --prod
+```
+
+See [frontend/burn-tracker/DEPLOYMENT.md](frontend/burn-tracker/DEPLOYMENT.md) for details.
+
+## 🤝 A2A Integration
+
+For AI agents on Virtuals Protocol:
+
+```javascript
+// Example: Nox Agent integration
+const blnk = new BLNKClient({
+  apiKey: process.env.BLNK_API_KEY,
+  baseUrl: 'https://blnk-lite-production.up.railway.app'
+});
+
+// Before executing trade
+const risk = await blnk.checkRisk(tokenAddress);
+
+if (risk.decision === 'PASS') {
+  await executeTrade(tokenAddress);
+} else {
+  console.log('Trade blocked:', risk.reason);
 }
-
-// Usage
-const canTrade = await checkRisk(
-  '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-  'swap'
-);
 ```
 
-### 4. Python
+## 📄 License
 
-```python
-import requests
+MIT License - see [LICENSE](LICENSE) file
 
-BLNK_API = 'https://blnk-lite-production.up.railway.app'
+## 🔗 Links
 
-def check_risk(token: str, action_type: str) -> dict:
-    response = requests.post(
-        f'{BLNK_API}/api/v1/gate',
-        json={'token': token, 'actionType': action_type}
-    )
-    return response.json()
+- **Website**: https://blnk.io
+- **Dashboard**: https://burn.blnk.io
+- **Documentation**: https://docs.blnk.io
+- **Discord**: https://discord.gg/blnk
+- **Twitter**: https://twitter.com/blnk_risk
 
-# Usage
-result = check_risk(
-    '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-    'swap'
-)
+## 🙏 Acknowledgments
 
-if result['decision'] == 'BLOCK':
-    print(f"🚫 Blocked: {result['risk_reasons']}")
-elif result['decision'] == 'WARN':
-    print(f"⚠️  Warning: {result['risk_score']}")
-    print(f"Recommended: {result['recommended_next_call']}")
-else:
-    print(f"✅ Safe to proceed: {result['risk_level']}")
-```
-
-## Pricing Tiers
-
-| Tier | Daily Calls | Price | $BLNK Required |
-|------|-------------|-------|----------------|
-| **FREE** | 100 | $0 | 0 |
-| **BASIC** | 500 | $19/mo | 100 |
-| **PRO** | 2,000 | $99/mo | 500 |
-| **ENTERPRISE** | 10,000 | $499/mo | 2,500 |
-
-> 💡 **$BLNK is not payment** - it's performance unlock. Subscribe with USDC/Card, hold $BLNK for higher limits.
-
-## Endpoints
-
-| Endpoint | Method | Price | Description |
-|----------|--------|-------|-------------|
-| `/api/v1/gate` | POST | $1/100 calls | Pre-trade risk gate |
-| `/api/v1/policy/check` | POST | $15/check | Policy compliance |
-| `/api/v1/policies` | GET | FREE | List policies |
-| `/health` | GET | FREE | Health check |
-| `/version` | GET | FREE | Version info |
-| `/metrics` | GET | FREE* | Daily report |
-
-*Authenticated access
-
-## Response Format
-
-All responses include:
-
-```json
-{
-  "decision": "PASS|WARN|BLOCK",
-  "risk_score": 0-100,
-  "risk_level": "SAFE|LOW|MEDIUM|HIGH|CRITICAL",
-  "confidence": 0.0-1.0,
-  "evidence": [],
-  "recommended_next_call": {
-    "skill": "...",
-    "reason": "...",
-    "price": "..."
-  }
-}
-```
-
-## Policies
-
-### Conservative
-- Blocks: upgradeable, mintable, blacklist, pausable
-- Max tax: 0%
-- Min liquidity: $100k
-
-### Moderate (Default)
-- Blocks: mintable, blacklist
-- Max tax: 5%
-- Min liquidity: $50k
-
-### Aggressive
-- Blocks: critical only
-- Max tax: 10%
-- Min liquidity: $10k
-
-### DeFi Yield
-- Blocks: blacklist, honeypots
-- Max tax: 3%
-- Min liquidity: $200k
-
-## Architecture
-
-```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   Agent     │────▶│  BLNK Gate  │────▶│  Response   │
-└─────────────┘     └─────────────┘     └─────────────┘
-                           │
-                    ┌──────┴──────┐
-                    ▼             ▼
-              ┌─────────┐   ┌──────────┐
-              │  Cache  │   │  Policy  │
-              │ SQLite  │   │   Pack   │
-              └─────────┘   └──────────┘
-```
-
-- **1 RPC call** per gate check
-- **300s TTL** cache
-- **SQLite** file-based (no Redis needed)
-- **Lite mode** = free public RPC
-
-## Disclaimer
-
-BLNK Risk Gate provides **technical risk assessment**, not investment advice. Always DYOR.
-
-## Support
-
-- Discord: https://discord.gg/blnk
-- Docs: https://docs.blnk.io
-- ACP: Search "BLNK Risk Gate" on Virtuals Protocol
+- Virtuals Protocol (aGDP) for the A2A ecosystem
+- Base Network for L2 infrastructure
+- OpenZeppelin for secure contract libraries
 
 ---
 
-**Built for agents. Ready for production.**
+**BLNK Risk Gate** © 2026 - Securing AI agents in DeFi
