@@ -1,0 +1,280 @@
+/**
+ * BLNK Report Generator
+ * PDF and Excel report generation
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+class ReportGenerator {
+  constructor() {
+    this.templatesDir = path.join(__dirname, '..', 'templates');
+    this.reportsDir = path.join(__dirname, '..', 'reports');
+    
+    // Ensure reports directory exists
+    if (!fs.existsSync(this.reportsDir)) {
+      fs.mkdirSync(this.reportsDir, { recursive: true });
+    }
+  }
+  
+  /**
+   * Generate PDF report (HTML-based for simplicity)
+   */
+  async generatePDF(data, options = {}) {
+    const reportId = `report_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const filename = `${reportId}.html`; // HTML as PDF placeholder
+    const filepath = path.join(this.reportsDir, filename);
+    
+    const html = this.generateHTMLReport(data, options);
+    fs.writeFileSync(filepath, html);
+    
+    return {
+      reportId,
+      format: 'PDF',
+      filename: `${reportId}.pdf`,
+      htmlFilename: filename,
+      filepath,
+      generatedAt: new Date().toISOString(),
+      downloadUrl: `/reports/${reportId}.pdf`
+    };
+  }
+  
+  /**
+   * Generate Excel/CSV report
+   */
+  async generateExcel(data, options = {}) {
+    const reportId = `report_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const filename = `${reportId}.csv`;
+    const filepath = path.join(this.reportsDir, filename);
+    
+    const csv = this.generateCSVReport(data, options);
+    fs.writeFileSync(filepath, csv);
+    
+    return {
+      reportId,
+      format: 'Excel',
+      filename: `${reportId}.xlsx`,
+      csvFilename: filename,
+      filepath,
+      generatedAt: new Date().toISOString(),
+      downloadUrl: `/reports/${reportId}.xlsx`
+    };
+  }
+  
+  /**
+   * Generate HTML report template
+   */
+  generateHTMLReport(data, options) {
+    const { title = 'BLNK Risk Report', date = new Date().toISOString() } = options;
+    
+    const riskLevelColor = {
+      SAFE: '#22c55e',
+      LOW: '#84cc16',
+      MEDIUM: '#eab308',
+      HIGH: '#f97316',
+      CRITICAL: '#ef4444'
+    };
+    
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>${title}</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; color: #333; }
+    .header { border-bottom: 3px solid #2563eb; padding-bottom: 20px; margin-bottom: 30px; }
+    .header h1 { color: #2563eb; margin: 0; }
+    .meta { color: #666; margin-top: 10px; }
+    .section { margin: 30px 0; }
+    .section h2 { color: #1e40af; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; }
+    .risk-badge { 
+      display: inline-block; 
+      padding: 8px 16px; 
+      border-radius: 20px; 
+      color: white; 
+      font-weight: bold;
+    }
+    .score { font-size: 48px; font-weight: bold; color: #2563eb; }
+    .score-label { color: #666; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th { background: #f3f4f6; padding: 12px; text-align: left; font-weight: 600; }
+    td { padding: 12px; border-bottom: 1px solid #e5e7eb; }
+    .footer { margin-top: 50px; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #666; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🔒 BLNK Risk Report</h1>
+    <div class="meta">
+      Generated: ${date}<br>
+      Report ID: ${data.reportId || 'N/A'}<br>
+      Token: ${data.token || 'N/A'}
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Risk Assessment</h2>
+    <div class="score">${data.riskScore || 0}</div>
+    <div class="score-label">Risk Score (0-100)</div>
+    <div style="margin-top: 20px;">
+      <span class="risk-badge" style="background: ${riskLevelColor[data.riskLevel] || '#666'};">
+        ${data.riskLevel || 'UNKNOWN'}
+      </span>
+      <span style="margin-left: 20px; font-size: 18px;">
+        Decision: <strong>${data.decision || 'N/A'}</strong>
+      </span>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Detected Signals</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Signal Type</th>
+          <th>Severity</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${(data.signals || []).map(s => `
+          <tr>
+            <td>${s.type}</td>
+            <td>${s.severity}</td>
+            <td>${s.description || 'N/A'}</td>
+          </tr>
+        `).join('') || '<tr><td colspan="3">No signals detected</td></tr>'}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Technical Details</h2>
+    <table>
+      <tr><th>Property</th><th>Value</th></tr>
+      <tr><td>Confidence</td><td>${(data.confidence * 100).toFixed(1)}%</td></tr>
+      <tr><td>Latency</td><td>${data.latencyMs}ms</td></tr>
+      <tr><td>RPC Calls</td><td>${data.rpcCalls || 0}</td></tr>
+      <tr><td>Cached</td><td>${data.cached ? 'Yes' : 'No'}</td></tr>
+    </table>
+  </div>
+
+  <div class="footer">
+    <p><strong>Disclaimer:</strong> This report is generated by BLNK Risk Gate for technical risk assessment only. 
+    It does not constitute investment advice. Always conduct your own research (DYOR) before making investment decisions.</p>
+    <p>BLNK Risk Gate © 2026 | https://blnk.io</p>
+  </div>
+</body>
+</html>
+    `;
+  }
+  
+  /**
+   * Generate CSV report
+   */
+  generateCSVReport(data, options) {
+    const headers = ['Property', 'Value'];
+    const rows = [
+      ['Report ID', data.reportId || 'N/A'],
+      ['Token', data.token || 'N/A'],
+      ['Risk Score', data.riskScore || 0],
+      ['Risk Level', data.riskLevel || 'N/A'],
+      ['Decision', data.decision || 'N/A'],
+      ['Confidence', `${(data.confidence * 100).toFixed(1)}%`],
+      ['Latency (ms)', data.latencyMs || 0],
+      ['RPC Calls', data.rpcCalls || 0],
+      ['Cached', data.cached ? 'Yes' : 'No'],
+      ['Generated At', new Date().toISOString()]
+    ];
+    
+    // Add signals
+    if (data.signals && data.signals.length > 0) {
+      rows.push(['', '']);
+      rows.push(['DETECTED SIGNALS', '']);
+      rows.push(['Type', 'Severity']);
+      data.signals.forEach(s => {
+        rows.push([s.type, s.severity]);
+      });
+    }
+    
+    return [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+  }
+  
+  /**
+   * Generate batch portfolio report
+   */
+  async generatePortfolioReport(portfolioData, options = {}) {
+    const { format = 'pdf' } = options;
+    
+    const reportData = {
+      reportId: `portfolio_${Date.now()}`,
+      title: 'Portfolio Risk Report',
+      tokens: portfolioData.tokens || [],
+      summary: {
+        totalTokens: portfolioData.tokens?.length || 0,
+        averageRisk: this.calculateAverageRisk(portfolioData.tokens),
+        highRiskCount: portfolioData.tokens?.filter(t => t.riskScore > 70).length || 0,
+        safeCount: portfolioData.tokens?.filter(t => t.riskScore < 30).length || 0
+      }
+    };
+    
+    if (format === 'pdf') {
+      return this.generatePDF(reportData, { title: 'Portfolio Risk Report' });
+    } else {
+      return this.generateExcel(reportData, { title: 'Portfolio Risk Report' });
+    }
+  }
+  
+  /**
+   * Calculate average risk score
+   */
+  calculateAverageRisk(tokens) {
+    if (!tokens || tokens.length === 0) return 0;
+    const sum = tokens.reduce((acc, t) => acc + (t.riskScore || 0), 0);
+    return Math.round(sum / tokens.length);
+  }
+  
+  /**
+   * List generated reports
+   */
+  listReports() {
+    const files = fs.readdirSync(this.reportsDir);
+    return files.map(filename => {
+      const filepath = path.join(this.reportsDir, filename);
+      const stats = fs.statSync(filepath);
+      return {
+        filename,
+        size: stats.size,
+        createdAt: stats.birthtime,
+        downloadUrl: `/reports/${filename}`
+      };
+    }).sort((a, b) => b.createdAt - a.createdAt);
+  }
+  
+  /**
+   * Delete old reports
+   */
+  cleanup(maxAge = 7 * 24 * 60 * 60 * 1000) { // 7 days
+    const now = Date.now();
+    const files = fs.readdirSync(this.reportsDir);
+    
+    let deleted = 0;
+    for (const filename of files) {
+      const filepath = path.join(this.reportsDir, filename);
+      const stats = fs.statSync(filepath);
+      
+      if (now - stats.mtime.getTime() > maxAge) {
+        fs.unlinkSync(filepath);
+        deleted++;
+      }
+    }
+    
+    return { deleted, remaining: files.length - deleted };
+  }
+}
+
+module.exports = { ReportGenerator };

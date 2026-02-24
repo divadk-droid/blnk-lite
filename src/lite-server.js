@@ -238,6 +238,94 @@ app.get('/metrics', async (req, res) => {
   });
 });
 
+// Report generation endpoints
+const { ReportGenerator } = require('./report-generator');
+const reportGenerator = new ReportGenerator();
+
+// Generate PDF report
+app.post('/api/v1/reports/pdf', async (req, res) => {
+  try {
+    const { data, options } = req.body;
+    
+    if (!data) {
+      return res.status(400).json({ error: 'Report data required' });
+    }
+    
+    const report = await reportGenerator.generatePDF(data, options);
+    
+    res.json({
+      success: true,
+      report: {
+        id: report.reportId,
+        format: 'PDF',
+        downloadUrl: report.downloadUrl,
+        generatedAt: report.generatedAt
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Generate Excel report
+app.post('/api/v1/reports/excel', async (req, res) => {
+  try {
+    const { data, options } = req.body;
+    
+    if (!data) {
+      return res.status(400).json({ error: 'Report data required' });
+    }
+    
+    const report = await reportGenerator.generateExcel(data, options);
+    
+    res.json({
+      success: true,
+      report: {
+        id: report.reportId,
+        format: 'Excel',
+        downloadUrl: report.downloadUrl,
+        generatedAt: report.generatedAt
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Generate portfolio report
+app.post('/api/v1/reports/portfolio', async (req, res) => {
+  try {
+    const { tokens, format = 'pdf' } = req.body;
+    
+    if (!tokens || !Array.isArray(tokens)) {
+      return res.status(400).json({ error: 'Tokens array required' });
+    }
+    
+    const report = await reportGenerator.generatePortfolioReport(
+      { tokens },
+      { format }
+    );
+    
+    res.json({
+      success: true,
+      report: {
+        id: report.reportId,
+        format: format.toUpperCase(),
+        downloadUrl: report.downloadUrl,
+        generatedAt: report.generatedAt
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// List reports
+app.get('/api/v1/reports', (req, res) => {
+  const reports = reportGenerator.listReports();
+  res.json({ reports });
+});
+
 // i18n endpoints
 app.get('/api/v1/i18n/languages', (req, res) => {
   res.json({
