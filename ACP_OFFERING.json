@@ -15,47 +15,95 @@
         "path": "/api/v1/gate",
         "method": "POST",
         "price": "$1 USD per 100 calls",
-        "description": "Single RPC call risk assessment before trade execution",
-        "input": {
-          "token": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-          "actionType": "swap",
-          "amount": "1.0",
-          "chain": "ethereum",
-          "wallet": "0x..."
-        },
-        "output": {
-          "schema_version": "1.0.0",
-          "gate_id": "gate_1234567890_abc123",
-          "timestamp": "2026-02-23T09:20:39.212Z",
-          "latency_ms": 2,
-          "mode": "LITE",
-          "decision": "PASS",
-          "risk_score": 10,
-          "risk_level": "SAFE",
-          "confidence": 0.95,
-          "execution_allowed": true,
-          "requires_confirmation": false,
-          "recommended_next_call": {
-            "skill": "validation_token_safety_scan",
-            "reason": "WARN decision - deep scan recommended",
-            "price": "$5 USD"
-          },
-          "rate_limit": {
-            "tier": "FREE",
-            "used": 1,
-            "limit": 100,
-            "remaining": 99
-          },
-          "rpc_efficiency": {
-            "calls": 0,
-            "cached": true
-          }
-        },
-        "errors": {
-          "400": "Invalid token address",
-          "429": "Rate limit exceeded - upgrade tier",
-          "500": "System error - safe fallback to BLOCK"
-        }
+        "description": "Single RPC call risk assessment before trade execution"
+      },
+      {
+        "id": "validation_token_safety_scan",
+        "name": "Token Safety Scan",
+        "path": "/api/v1/scan",
+        "method": "POST",
+        "price": "$5 USD per scan",
+        "description": "Deep token analysis with bytecode pattern matching"
+      },
+      {
+        "id": "validation_token_compare",
+        "name": "Token Compare",
+        "path": "/api/v1/compare",
+        "method": "POST",
+        "price": "$3 USD per comparison",
+        "description": "Compare two tokens side-by-side risk analysis"
+      },
+      {
+        "id": "validation_onchain_trace",
+        "name": "On-Chain Trace",
+        "path": "/api/v1/trace",
+        "method": "POST",
+        "price": "$10 USD per trace",
+        "description": "Transaction flow analysis and labeling"
+      },
+      {
+        "id": "counterparty_risk_score",
+        "name": "Counterparty Risk Score",
+        "path": "/api/v1/counterparty",
+        "method": "POST",
+        "price": "$2 USD per check",
+        "description": "Wallet/contract risk scoring"
+      },
+      {
+        "id": "portfolio_batch_scan",
+        "name": "Portfolio Batch Scan",
+        "path": "/api/v1/portfolio/scan",
+        "method": "POST",
+        "price": "$0.50 USD per token",
+        "description": "Batch scan multiple portfolio positions"
+      },
+      {
+        "id": "portfolio_risk_dashboard",
+        "name": "Portfolio Risk Dashboard",
+        "path": "/api/v1/portfolio/dashboard",
+        "method": "GET",
+        "price": "$20 USD per report",
+        "description": "Cross-chain exposure and concentration analysis"
+      },
+      {
+        "id": "monitoring_watch_daily",
+        "name": "Daily Watch",
+        "path": "/api/v1/watch/daily",
+        "method": "POST",
+        "price": "$5 USD per token/month",
+        "description": "Daily monitoring with email alerts"
+      },
+      {
+        "id": "anomaly_alert_realtime",
+        "name": "Real-time Anomaly Alerts",
+        "path": "/api/v1/alerts/realtime",
+        "method": "POST",
+        "price": "$50 USD per token/month",
+        "description": "WebSocket-based real-time anomaly detection"
+      },
+      {
+        "id": "liquidity_shock_detector",
+        "name": "Liquidity Shock Detector",
+        "path": "/api/v1/liquidity/shock",
+        "method": "POST",
+        "price": "$15 USD per check",
+        "description": "Detect sudden liquidity changes"
+      },
+      {
+        "id": "discovery_risk_leaderboard",
+        "name": "Risk Leaderboard",
+        "path": "/api/v1/leaderboard/risk",
+        "method": "GET",
+        "price": "FREE",
+        "description": "Top risky/safe tokens ranking"
+      },
+      {
+        "id": "discovery_news_feed",
+        "name": "Risk News Feed",
+        "path": "/api/v1/news/risk",
+        "method": "GET",
+        "price": "FREE",
+        "description": "Curated risk-related news"
       },
       {
         "id": "policy_pack",
@@ -63,61 +111,7 @@
         "path": "/api/v1/policy/check",
         "method": "POST",
         "price": "$15 USD per check",
-        "description": "Institutional policy-based PASS/BLOCK decisions",
-        "input": {
-          "token": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-          "policyId": "conservative",
-          "tokenData": {
-            "isUpgradeable": false,
-            "isMintable": false,
-            "hasBlacklist": false,
-            "taxPercent": 0,
-            "liquidityUSD": 1000000
-          }
-        },
-        "output": {
-          "policy_id": "conservative",
-          "policy_name": "Conservative",
-          "token": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-          "verdict": "PASS",
-          "violations": [],
-          "violation_count": 0,
-          "rules_applied": 7,
-          "timestamp": "2026-02-23T09:20:39.212Z"
-        },
-        "policies": ["conservative", "moderate", "aggressive", "defi_yield"]
-      },
-      {
-        "id": "list_policies",
-        "name": "List Available Policies",
-        "path": "/api/v1/policies",
-        "method": "GET",
-        "price": "FREE",
-        "description": "Get all available policy templates"
-      },
-      {
-        "id": "health_check",
-        "name": "Health Check",
-        "path": "/health",
-        "method": "GET",
-        "price": "FREE",
-        "description": "Service health and uptime status"
-      },
-      {
-        "id": "version_info",
-        "name": "Version Info",
-        "path": "/version",
-        "method": "GET",
-        "price": "FREE",
-        "description": "API version and schema information"
-      },
-      {
-        "id": "metrics",
-        "name": "Daily Metrics",
-        "path": "/metrics",
-        "method": "GET",
-        "price": "FREE (authenticated)",
-        "description": "Daily usage report with revenue estimate"
+        "description": "Institutional policy-based PASS/BLOCK decisions"
       }
     ],
     
