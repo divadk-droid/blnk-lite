@@ -195,6 +195,188 @@
 
 ---
 
+## A2A Security Agent 구현 (Agent-Ready Spec)
+
+**목표:** BLNK를 단순 API 제공자에서 Virtuals Protocol(aGDP) 생태계의 완전한 자율 토큰 소각 보안 게이트로 변환
+
+**핵심 원칙:** "Issuer-Friendly Tokenomics 3.0" - 모든 $BLNK 수수료의 50%는 증명 가능한 소각 주소로 전송
+
+---
+
+## 병렬 개발 모듈 (모듈당 1개 에이전트)
+
+### 모듈 1: 스마트 컨트랙트 (BlnkPaymentGate.sol)
+
+**목표:** $BLNK 토큰의 온체인 결제 및 스테이킹 게이트웨이 생성  
+**기술 스택:** Solidity, Foundry/Hardhat, OpenZeppelin  
+**네트워크:** Base (L2)
+
+#### 요구사항
+
+**A. 스테이킹 로직:**
+```solidity
+mapping(address => uint256) public stakedBalances;
+
+function stake(uint256 amount) external
+function unstake(uint256 amount) external
+```
+
+**B. 티어 시스템 확인:**
+```solidity
+function getTier(address user) external view returns (string memory)
+```
+- < 500 $BLNK: "FREE"
+- >= 500 $BLNK: "BASIC"  
+- >= 5,000 $BLNK: "PRO"
+- >= 50,000 $BLNK: "ENTERPRISE"
+
+**C. 호출당 결제 로직:**
+```solidity
+function payForApiCall(uint256 amount) external
+```
+- ERC20 transferFrom으로 사용자에서 컨트랙트로 전송
+- **핵심 소각 로직:** amount / 2 (50%)를 0x00...dEaD 소각 주소로 즉시 전송
+- 나머지 50%를 treasuryAddress로 전송
+
+**D. 이벤트:**
+```solidity
+event ApiPaid(address indexed client, uint256 amount, uint256 burned);
+event Staked(address indexed user, uint256 amount, string tier);
+event Unstaked(address indexed user, uint256 amount);
+```
+
+#### 구현 체크리스트
+- [ ] 스마트 컨트랙트 개발 `autoImplement`
+- [ ] 스테이킹/언스테이킹 기능
+- [ ] 티어 확인 함수
+- [ ] 50% 소각 로직
+- [ ] 이벤트 emit
+- [ ] Foundry 테스트 작성
+- [ ] Base 네트워크 배포 준비
+
+**목표일:** 2026-02-25
+
+---
+
+### 모듈 2: 백엔드 마이크로결제 리스너 (src/payment-listener.js)
+
+**목표:** 온체인 BlnkPaymentGate 컨트랙트 액션을 오프체인 API Rate Limiter/Cache에 연결  
+**기술 스택:** Node.js, Ethers.js v6, SQLite
+
+#### 요구사항
+
+**A. 이벤트 리스닝:**
+- Base Network의 BlnkPaymentGate.sol에서 ApiPaid, Staked, Unstaked 이벤트 리스닝
+- Alchemy/Infura WSS 엔드포인트 사용
+
+**B. DB 상태 업데이트:**
+- Staked 이벤트 발생 시 SQLite DB에서 클라이언트 티어 업데이트
+- PRO 티어 진입 시 즉시 2,000 requests/day 부여
+
+**C. 크레딧 시스템:**
+- ApiPaid emit 시 호출자의 사용 가능 API 크레딧 증가
+- 1 $BLNK = 100 API Calls 환율 적용
+
+**D. 우아한 에러 처리:**
+- WSS 연결 끊김 시 지수 백오프 재연결 구현
+- lite-server.js 크래시 방지
+
+#### 구현 체크리스트
+- [ ] 이벤트 리스너 구현 `autoImplement`
+- [ ] WSS 연결 및 재연결 로직
+- [ ] SQLite DB 업데이트
+- [ ] 티어 기반 크레딧 시스템
+- [ ] 에러 처리 및 로깅
+
+**목표일:** 2026-02-26
+
+---
+
+### 모듈 3: Alpha 정보 API (Gated Endpoint) (src/alpha-feed.js)
+
+**목표:** 대량 $BLNK 보유자에게만 "Alpha"(안전한 신규 컨트랙트) 제공  
+**기술 스택:** Node.js, Express.js
+
+#### 요구사항
+
+**A. 엔드포인트:**
+```
+GET /api/v1/alpha/trending
+```
+
+**B. 인증 제어 (Token Gating):**
+- Express 미들웨어 `requirePlatinumTier` 생성
+- 블록체인 쿼리 또는 로컬 DB에서 호출자의 API 키가 >= 100,000 $BLNK 스테이킹 지갑과 연결되어 있는지 확인
+- 아닐 경우 403 Forbidden 반환: "Insufficient $BLNK staked for Alpha access."
+
+**C. 데이터 소스:**
+- 기존 SQLite cache logs (src/logger.js)에서 집계
+- 지난 1시간 동안 50회 이상 요청되고 "PASS" 반환한 컨트랙트 주소 JSON 배열 반환
+
+#### 구현 체크리스트
+- [ ] Alpha API 엔드포인트 생성 `autoImplement`
+- [ ] requirePlatinumTier 미들웨어
+- [ ] 블록체인/DB 스테이킹 확인
+- [ ] 트렌딩 컨트랙트 집계 로직
+- [ ] 403 응답 처리
+
+**목표일:** 2026-02-27
+
+---
+
+### 모듈 4: 투명성 대시보드 (frontend/burn-tracker)
+
+**목표:** "디플레이션 스파이럴" 낟레이티브 시각화로 토큰 수요 유도  
+**기술 스택:** Next.js (React), TailwindCSS, Ethers.js
+
+#### 요구사항
+
+**A. UI 레이아웃:**
+- 다크모드, 해커 미학 대시보드
+
+**B. 히어로 섹션:**
+- "Total $BLNK Burned to Date" 대형 카운터
+- 컨트랙트에서 총 공급량 감소 또는 모든 ApiPaid 이벤트 파싱하여 표시
+
+**C. 라이브 피드 컴포넌트:**
+- WebSocket을 사용한 터미널 스타일 스크롤링 피드:
+```
+[Tx Hash] Nox Agent paid 100 $BLNK. 50 $BLNK burned forever.
+[Tx Hash] Ethy AI staked 5,000 $BLNK. Upgraded to PRO.
+```
+
+**D. 티어 리스트:**
+- 4개 티어 (FREE, BASIC, PRO, ENTERPRISE)와 필요 스테이킹 금액 명확히 표시
+- FOMO 유도
+
+#### 구현 체크리스트
+- [ ] Next.js 프로젝트 설정
+- [ ] 다크모드 UI 구현
+- [ ] 소각 총액 카운터
+- [ ] 라이브 피드 컴포넌트
+- [ ] WebSocket 연결
+- [ ] 티어 리스트 표시
+
+**목표일:** 2026-02-28
+
+---
+
+## 검증 및 수락 기준
+
+### 독립성
+- 각 에이전트는 다른 모듈이 완료되지 않아도 모의(mock) 환경에서 테스트 가능해야 함
+- 예: Agent 2는 로컬에서 모의 ERC20 환경을 사용하여 테스트 가능해야 함
+
+### 성능
+- 핵심 lite-analyzer.js는 2ms 지연 시간 유지
+- RPC 체크로 메인 스레드 차단 금지
+
+### 문서화
+- 모든 새 함수는 JSDoc 또는 NatSpec 주석 포함
+- 입력, 출력, 목적 상세 기술
+
+---
+
 ## 토크노믹스 개선 (Tokenomics 2.0)
 
 ### 분석 결과

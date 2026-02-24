@@ -311,7 +311,29 @@ a4f071c Fix package-lock.json for Railway deployment
 ##
 ##
 ##
-#### 00:22:47 - Research
+##
+##
+##
+##
+#### 02:02:39 - Skill Generation
+- Generated skills: 0
+- Patterns analyzed: 12
+- Skills: 
+## 01:06:50 - 자동 개발
+- **구현 완료:** 0개
+- **실패:** 0개
+- **건너뜀:** 44개
+## 01:03:30 - 자동 테스트
+- **테스트 수행:** 3개
+- **실패:** 0개
+- **평균 지연:** 289ms
+- **에러율:** 0.0000
+- **발견 이슈:** 4개
+## 01:01:00 - Skill Generation
+- Generated skills: 0
+- Patterns analyzed: 12
+- Skills: 
+## 00:22:47 - Research
 - Ideas found: 8
 ## 00:06:33 - 자동 개발
 - **구현 완료:** 0개
