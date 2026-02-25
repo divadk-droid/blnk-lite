@@ -1,0 +1,11 @@
+# Git Attributes
+# Protect sensitive files from being exported
+
+.env          export-ignore
+.env.*        export-ignore
+*.key         export-ignore
+*.pem         export-ignore
+*.secret      export-ignore
+*.private     export-ignore
+secrets/      export-ignore
+keystore/     export-ignore
