@@ -1,10 +1,18 @@
 # BLNK Risk Gate - A2A Security Agent
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI/CD](https://github.com/divadk-droid/blnk-lite/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/divadk-droid/blnk-lite/actions)
+[![Coverage](https://img.shields.io/badge/coverage-50%25-yellow)](./coverage)
 [![Base Network](https://img.shields.io/badge/Network-Base-0052FF)](https://base.org)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green)](https://nodejs.org)
 
 > Pre-trade risk infrastructure for AI agents on Virtuals Protocol (aGDP) ecosystem
+
+## 📚 Documentation
+
+- [Agent Onboarding Guide](./docs/AGENT_ONBOARDING_GUIDE.md) - Complete project overview
+- [API Catalog](https://blnk-lite-production.up.railway.app/api/v1/catalog) - All 19 API endpoints
+- [Job Offerings](https://app.virtuals.io/acp) - 19 services on ACP Marketplace
 
 ## 🎯 Overview
 
