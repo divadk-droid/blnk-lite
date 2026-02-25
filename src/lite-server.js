@@ -31,6 +31,9 @@ app.use('/api/v1/reports', require('./api/routes/reports'));
 app.use('/api/v1/creator', require('./api/routes/creator'));
 app.use('/api/v1/validation', require('./api/routes/validation'));
 app.use('/api/v1/catalog', require('./api/routes/catalog'));
+app.use('/api/v1/copyright', require('./api/routes/copyright'));
+app.use('/api/v1/c2pa', require('./api/routes/c2pa'));
+app.use('/api/v1/manipulation', require('./api/routes/manipulation'));
 
 // Initialize
 const analyzer = new LiteAnalyzer();
