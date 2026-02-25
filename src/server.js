@@ -7,6 +7,22 @@ require('dotenv').config();
 const app = express();
 app.use(express.json());
 
+// Import new API routes
+const aiContentRoutes = require('./api/routes/ai-content');
+const hftRoutes = require('./api/routes/hft');
+const alphaRoutes = require('./api/routes/alpha');
+const reportsRoutes = require('./api/routes/reports');
+const creatorRoutes = require('./api/routes/creator');
+const validationRoutes = require('./api/routes/validation');
+
+// Register new routes
+app.use('/api/v1/ai-content', aiContentRoutes);
+app.use('/api/v1/hft', hftRoutes);
+app.use('/api/v1/alpha', alphaRoutes);
+app.use('/api/v1/reports', reportsRoutes);
+app.use('/api/v1/creator', creatorRoutes);
+app.use('/api/v1/validation', validationRoutes);
+
 // Initialize
 const analyzer = new ContractAnalyzer(process.env.ALCHEMY_ETHEREUM_KEY || 'https://eth.llamarpc.com');
 const cache = new MemoryCache(); // Use Redis in production
@@ -232,10 +248,16 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🛡️  BLNK Backend running on port ${PORT}`);
   console.log(`📊 Endpoints:`);
-  console.log(`   POST /api/v1/gate    - Pre-trade risk gate`);
-  console.log(`   POST /api/v1/scan    - Token safety scan`);
-  console.log(`   GET  /health         - Health check`);
-  console.log(`   GET  /stats          - Statistics`);
+  console.log(`   POST /api/v1/gate                    - Pre-trade risk gate`);
+  console.log(`   POST /api/v1/scan                    - Token safety scan`);
+  console.log(`   POST /api/v1/ai-content/scan         - AI Content Risk Scanner`);
+  console.log(`   POST /api/v1/hft/risk-assess         - HFT Risk API (<10ms)`);
+  console.log(`   POST /api/v1/alpha/feed              - Alpha Feed API`);
+  console.log(`   POST /api/v1/reports/generate        - Report Generator`);
+  console.log(`   POST /api/v1/creator/credit-score    - Creator Credit Score`);
+  console.log(`   POST /api/v1/validation/token-safety - Token Safety Scan`);
+  console.log(`   GET  /health                         - Health check`);
+  console.log(`   GET  /stats                          - Statistics`);
 });
 
 module.exports = app;

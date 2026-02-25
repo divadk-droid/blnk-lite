@@ -1,0 +1,95 @@
+[package]
+name = "hft-risk-api"
+version = "0.1.0"
+edition = "2021"
+authors = ["BLNK Team"]
+description = "HFT Specialized Real-time Risk Assessment API"
+
+[dependencies]
+# Async runtime
+tokio = { version = "1.36", features = ["full", "rt-multi-thread"] }
+
+# SIMD utilities (for runtime feature detection)
+raw-cpuid = "11.0"
+
+# Hashing
+fxhash = "0.2"
+
+# Parallel processing
+rayon = "1.8"
+
+# HTTP server
+hyper = { version = "1.2", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+http-body-util = "0.1"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+rmp-serde = "1.1"  # MessagePack
+
+# Lock-free data structures
+crossbeam = "0.8"
+crossbeam-channel = "0.5"
+dashmap = "5.5"
+parking_lot = "0.12"
+
+# Caching
+redis = { version = "0.24", features = ["tokio-comp", "connection-manager"] }
+
+# gRPC
+tonic = "0.11"
+prost = "0.12"
+
+# Metrics
+metrics = "0.22"
+metrics-exporter-prometheus = "0.13"
+
+# Tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Configuration
+config = "0.14"
+
+# Logging
+log = "0.4"
+env_logger = "0.11"
+
+# Utilities
+bytes = "1.5"
+futures = "0.3"
+uuid = { version = "1.7", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+num_cpus = "1.16"
+
+[dev-dependencies]
+# Benchmarking
+criterion = { version = "0.5", features = ["async_tokio"] }
+
+# Testing
+tokio-test = "0.4"
+wiremock = "0.6"
+
+[[bench]]
+name = "api_latency"
+harness = false
+
+[[bench]]
+name = "risk_engine"
+harness = false
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = true
+
+[profile.bench]
+opt-level = 3
+debug = true

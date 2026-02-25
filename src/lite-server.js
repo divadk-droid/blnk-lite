@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const { LiteAnalyzer } = require('./lite-analyzer');
 const { SQLiteCache } = require('./sqlite-cache');
 const { RiskSchema, ExecutionGate } = require('./schema');
@@ -11,8 +12,20 @@ const { registerAIContentRoutes } = require('./modules/ai-content-scanner/api/ro
 const app = express();
 app.use(express.json());
 
+// Serve static files from docs directory
+app.use('/docs', express.static(path.join(__dirname, '..', 'docs')));
+
 // Register AI Content Scanner routes
 registerAIContentRoutes(app);
+
+// Register new API routes
+app.use('/api/v1/ai-content', require('./api/routes/ai-content'));
+app.use('/api/v1/hft', require('./api/routes/hft'));
+app.use('/api/v1/alpha', require('./api/routes/alpha'));
+app.use('/api/v1/reports', require('./api/routes/reports'));
+app.use('/api/v1/creator', require('./api/routes/creator'));
+app.use('/api/v1/validation', require('./api/routes/validation'));
+app.use('/api/v1/catalog', require('./api/routes/catalog'));
 
 // Initialize
 const analyzer = new LiteAnalyzer();
