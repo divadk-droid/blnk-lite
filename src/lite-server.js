@@ -9,8 +9,13 @@ const { PaymentManager } = require('./payment');
 const { I18n } = require('./i18n');
 const { registerAIContentRoutes } = require('./modules/ai-content-scanner/api/routes');
 
+const { swaggerUi, specs } = require('./swagger');
+
 const app = express();
 app.use(express.json());
+
+// Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 // Serve static files from docs directory
 app.use('/docs', express.static(path.join(__dirname, '..', 'docs')));

@@ -43,10 +43,40 @@ BLNK Risk Gate is a mandatory pre-trade security gate for AI agents operating in
 
 ## 🚀 Quick Start
 
-### API Usage
+### Installation
 
 ```bash
-# Check if a token is safe to trade
+# Clone repository
+git clone https://github.com/divadk-droid/blnk-lite.git
+cd blnk-backend
+
+# Install dependencies
+npm install
+
+# Setup environment
+cp .env.example .env
+# Edit .env with your API keys
+
+# Start server
+npm start
+```
+
+### API Documentation
+
+- **Swagger UI**: https://blnk-lite-production.up.railway.app/api-docs
+- **API Catalog**: https://blnk-lite-production.up.railway.app/api/v1/catalog
+- **Agent Guide**: [docs/AGENT_ONBOARDING_GUIDE.md](./docs/AGENT_ONBOARDING_GUIDE.md)
+
+### Quick Test
+
+```bash
+# Check API health
+curl https://blnk-lite-production.up.railway.app/health
+
+# Get API catalog
+curl https://blnk-lite-production.up.railway.app/api/v1/catalog
+
+# Test risk assessment
 curl -X POST https://blnk-lite-production.up.railway.app/api/v1/gate \
   -H "Content-Type: application/json" \
   -d '{
