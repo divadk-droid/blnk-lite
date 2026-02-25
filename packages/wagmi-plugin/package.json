@@ -1,0 +1,47 @@
+{
+  "name": "@blnk/wagmi-plugin",
+  "version": "1.0.0",
+  "description": "BLNK Risk Gate plugin for wagmi.sh - 3-line integration for DeFi risk assessment",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "lint": "eslint src/**/*.ts"
+  },
+  "keywords": [
+    "web3",
+    "defi",
+    "risk",
+    "wagmi",
+    "viem",
+    "ethereum",
+    "security"
+  ],
+  "author": "BLNK Risk Gate",
+  "license": "MIT",
+  "peerDependencies": {
+    "wagmi": "^2.0.0",
+    "viem": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "viem": "^2.0.0",
+    "wagmi": "^2.0.0"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/divadk-droid/blnk-lite.git",
+    "directory": "packages/wagmi-plugin"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
